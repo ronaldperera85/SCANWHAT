@@ -1,0 +1,578 @@
+.token {
+  word-wrap: break-word; /* Para navegadores modernos */
+  overflow-wrap: break-word; /* Similar a word-wrap, mejor compatibilidad */
+}
+
+/* Importar la fuente Quicksand */
+@font-face {
+  font-family: 'Quicksand';
+  src: url('../fonts/Quicksand-Bold.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  /* ... (resto de tus estilos) ... */
+}
+
+body.dark-theme .card {
+  background-color: #1a1a2e;
+  color: #ddd;
+}
+
+/* Estilos para la página Dashboard en tema oscuro */
+body.dark-theme .content-container {
+  background-color: #1f2545; /* Fondo azul oscuro */
+  color: #ddd; /* Texto gris claro */
+}
+
+/* Estilos para la imagen del logo en el sidebar */
+aside.sidebar header .logo img {
+  max-width: 50px; /* Ancho máximo */
+  height: auto; /* Ajuste automático de la altura para mantener la proporción */
+  border-radius: 10px; /* Mismo radio de borde que el contenedor */
+}
+
+/* Estilos para el contenedor del logo en el login */
+.login-container .logo-container {
+  text-align: center; /* Centrar el logo horizontalmente */
+  margin-bottom: 20px; /* Agregar un espacio debajo del logo */
+}
+
+/* Estilos para la imagen del logo en el login */
+.login-container .logo-container img {
+  max-width: 200px; /* Ancho máximo del logo */
+  height: auto; /* Mantener la proporción original */
+}
+
+.content-container-dev {
+  padding: 20px;
+  width: 95%;
+  margin: 10px auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.content-container label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  text-align: left; /* Alinea el texto a la izquierda, o al valor deseado */
+}
+
+.content-container .form-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-sizing: border-box; /* Para que el padding no aumente el ancho */
+  font-size: 16px; /* Ajusta el tamaño de la fuente */
+  margin-bottom: 5px; /* Reduce el espacio inferior */
+}
+
+/* Estilos para el contenedor del login */
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Para que ocupe toda la altura de la pantalla */
+  background-color: #f4f6f8; /* Un color de fondo suave */
+  width: 100%; /* Establece el ancho al 100% */
+}
+
+/* Estilos para la tarjeta del login */
+.login-container .card {
+  width: 400px; /* Ancho de la tarjeta */
+  padding: 20px;
+  border-radius: 10px; /* Bordes redondeados */
+  background-color: #fff; /* Fondo blanco para la tarjeta */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+/* Estilos para los elementos del formulario */
+.login-container .form-group {
+  margin-bottom: 15px;
+}
+
+.login-container label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.login-container .form-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-sizing: border-box; /* Para que el padding no aumente el ancho */
+}
+
+/* Estilos para el botón */
+
+button {
+  font-family: 'Quicksand', sans-serif;
+  padding: 10px 20px;
+  margin-top: 10px;
+  padding: 8px;
+  background: #7c5dfa; /* Morado */
+  border: none;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-container .btn-primary {
+  background-color: #7c5dfa;
+  border-color: #7c5dfa;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%; /* Para que el botón ocupe todo el ancho */
+}
+
+.login-container .btn-primary:hover {
+  background-color: #9585e7;
+  border-color: #9585e7;
+}
+
+/* Estilos para el enlace de registro */
+.login-container .register-link {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.card {
+  margin-bottom: 20px; /* Espacio inferior entre tarjetas */
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.dashboard-summary {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.dashboard-summary .card {
+  width: 300px; /* Ajusta el ancho según necesites */
+  text-align: center;
+}
+
+.dashboard-widgets {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.dashboard-widgets .widget {
+  background-color: #f0f0f0;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.dashboard-widgets .widget h2 {
+  margin-bottom: 5px;
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f6f8;
+  color: #333;
+  display: flex;
+  height: 100vh;
+}
+/*Main container*/
+.container {
+  display: flex;
+  height: 100%;
+}
+/* Sidebar Styling */
+aside.sidebar {
+  background-color: #fff;
+  width: 250px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  transition: width 0.3s ease; /* Transition for expanding/collapsing */
+}
+/* Header */
+aside.sidebar header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  justify-content: space-between;
+}
+
+.logo {
+  background-color: #7c5dfa;
+  color: white;
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.codinglab {
+  margin-left: 10px;
+  font-size: 0.9em;
+}
+
+.codinglab p:last-child{
+  font-size: 0.7em;
+  color: #7c7c7c;
+}
+/*Toggle buttons*/
+aside.sidebar header .toggle-btn {
+  border: none;
+  background: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Estilos para el botón de toggle del sidebar */
+aside.sidebar header .toggle-btn {
+  color: #333; /* Color por defecto (tema claro) */
+}
+
+body.dark-theme aside.sidebar header .toggle-btn {
+  color: #ddd; /* Color para el tema oscuro */
+}
+
+aside.sidebar.collapsed header .toggle-btn{
+  transform: rotate(180deg);
+}
+
+
+/* Navigation Styling */
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav ul li {
+  margin-bottom: 10px;
+}
+
+nav ul li a{
+  display: flex;
+  align-items: center;
+  color: #333;
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+nav ul li a.active,
+nav ul li a:hover {
+  background-color: #7c5dfa;
+  color: white;
+}
+nav ul li a i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+nav ul li a span{
+  flex: 1; /* Take up available space */
+}
+
+/* Bottom Section */
+.bottom-section{
+  margin-top: auto;
+}
+
+.bottom-section .logout{
+  display: flex;
+  align-items: center;
+  color: #333;
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  cursor: pointer;
+}
+
+.bottom-section .logout:hover{
+  background-color: #eee;
+}
+.bottom-section .logout i{
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+/* Theme toggle switch */
+.theme-toggle{
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+  font-size: 1.2rem;
+  gap: 5px;
+  padding: 0px 5px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 20px; /*  Mantén este valor fijo, o aúmentalo un poco si es necesario */
+  height: 20px;
+  min-width: 30px; /* Añade también un ancho mínimo */
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #7c5dfa;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #7c5dfa;
+}
+
+/* recorrido de la bolita */
+input:checked + .slider:before {
+  -webkit-transform: translateX(10px);
+  -ms-transform: translateX(10px);
+  transform: translateX(10px);
+}
+
+/* Collapsed state */
+aside.sidebar.collapsed {
+  width: 80px;
+  padding: 20px 10px;
+}
+
+aside.sidebar.collapsed .codinglab,
+aside.sidebar.collapsed .search-container input,
+aside.sidebar.collapsed nav ul li a span,
+aside.sidebar.collapsed .bottom-section .logout a
+{
+  display: none;
+}
+
+aside.sidebar.collapsed nav ul li {
+  margin-bottom: 15px;
+}
+
+aside.sidebar.collapsed nav ul li a {
+  display: flex;
+  justify-content: center;
+  padding: 15px 0;
+}
+/* Dark theme */
+body.dark-theme {
+  background-color: #1a1a2e;
+  color: #ddd;
+}
+
+body.dark-theme aside.sidebar {
+  background-color: #1f2545;
+  box-shadow: 2px 0 5px rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme aside.sidebar header,
+body.dark-theme aside.sidebar .search-container,
+body.dark-theme aside.sidebar nav ul li a{
+  color: #ddd;
+}
+
+
+body.dark-theme .search-container {
+  background-color: #343641;
+}
+body.dark-theme .search-container input {
+  color: #ddd;
+}
+
+body.dark-theme nav ul li a.active,
+body.dark-theme nav ul li a:hover {
+  background-color: #9585e7;
+  color: #ffffff;
+}
+
+body.dark-theme .bottom-section .logout{
+  color: #ddd;
+}
+
+body.dark-theme .bottom-section .logout:hover{
+  background-color: #343641;
+}
+
+body.dark-theme .slider {
+  background-color: #343641;
+}
+body.dark-theme input:checked + .slider {
+  background-color: #9585e7;
+}
+
+/*Content area*/
+.content-area {
+  flex: 1;
+  padding: 20px;
+  overflow: auto;
+}
+
+#content-placeholder {
+  height: 100%;
+}
+
+/* Content Styling */
+/* Common styles for all content areas */
+.content-container {
+  padding: 20px;
+  width: 95%;
+  margin: 10px auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+/*Specific styles for content areas*/
+
+.content-container h1 {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+/*Revenue*/
+.revenue-chart{
+  margin-bottom: 20px;
+}
+.revenue-summary ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+.revenue-summary ul li{
+  margin-bottom: 8px;
+}
+.revenue-details table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.revenue-details th,
+.revenue-details td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.revenue-details th {
+  background-color: #f0f0f0;
+}
+
+/*Notification*/
+.notification-list .notification{
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.notification-list .notification p{
+  margin: 0;
+}
+.notification-list .notification p small{
+  color: #888;
+}
+/*Analytics*/
+.analytics-metrics {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.analytics-metrics .metric {
+  text-align: center;
+}
+.analytics-metrics .metric h2{
+  margin: 0;
+}
+.analytics-metrics .metric p{
+  font-size: 2rem;
+  font-weight: bold;
+  margin-top: 5px;
+}
+.analytics-charts{
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.analytics-charts img{
+  max-width: 100%;
+  height: auto;
+}
+/*Likes*/
+.likes-list .like-item{
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.likes-list .like-item p{
+  margin: 0;
+}
+.likes-list .like-item p small{
+  color: #888;
+}
+/*Wallets*/
+.wallet-list .wallet-item{
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.wallet-list .wallet-item h2{
+  margin: 0;
+}
+.wallet-list .wallet-item p{
+  margin: 5px 0 0 0;
+  font-size: 1.1rem;
+}
