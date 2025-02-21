@@ -30,7 +30,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'email' => $email,
                 'password' => $hashed_password,
             ]);
-            $success = "Usuario registrado exitosamente. <a href='login.php'>Inicia sesión aquí</a>.";
+
+            // Redireccionar al usuario a login.php
+            header("Location: login.php");
+            exit(); // Asegura que el script se detenga después de la redirección
+            // $success = "Usuario registrado exitosamente. <a href='login.php'>Inicia sesión</a>."; // Ya no es necesario
         }
     }
 }

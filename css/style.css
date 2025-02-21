@@ -1,3 +1,19 @@
+.alert {
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+
+.alert-danger {
+  background: #E74C3C;
+  color: white;
+}
+
+.alert-success {
+  background: #2ECC71;
+  color: white;
+}
+
 .token {
   word-wrap: break-word; /* Para navegadores modernos */
   overflow-wrap: break-word; /* Similar a word-wrap, mejor compatibilidad */

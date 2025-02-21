@@ -148,7 +148,7 @@ $numeros = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php endforeach; ?>
     <?php endforeach; ?>
 
-    <button id="add-phone" class="btn btn-primary" onclick="loadContent('pages/registrar_telefono.php')">+ Agregar Nuevo Número</button>
+    <button id="add-phone" class="btn btn-primary" onclick="loadContent('pages/registrar_telefono.php')">+ Agregar Nuevo Número</button><p></p>
     <div class="phone-list">
         <?php foreach ($numeros as $numero): ?>
             <div class="card phone-card" data-phone-id="<?php echo $numero['id']; ?>" data-phone-number="<?php echo $numero['numero']; ?>">  <!-- Apply card class here -->

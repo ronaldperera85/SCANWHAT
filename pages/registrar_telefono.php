@@ -75,26 +75,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $qrCode = $responseData['data']['qrCode'] ?? null;
             $token = $responseData['data']['token'] ?? null;
             $estado = 'conectado';
-            $message = "Número registrado exitosamente. Escanea este código QR para vincular tu número.";
+            $message = '<div class="alert alert-success">¡Número registrado exitosamente! Escanea este código QR para vincular tu número.</div>';
 
             $stmt = $pdo->prepare("INSERT INTO numeros (usuario_id, numero, token, estado, hooks_url) VALUES (:usuario_id, :numero, :token, :estado, '')");
             $stmt->execute([
-                'usuario_id' => $_SESSION['user_id'],
-                'numero' => $numero,
-                'token' => $token,
-                'estado' => $estado,
+            'usuario_id' => $_SESSION['user_id'],
+            'numero' => $numero,
+            'token' => $token,
+            'estado' => $estado,
             ]);
 
             echo json_encode(['success' => true, 'message' => $message, 'qrCode' => $qrCode]);
         } else {
-            $errorMessage = $responseData['message'] ?? 'Respuesta inesperada.';
+            $errorMessage = $responseData['message'] ?? '¡Número de teléfono ya registrado, intente con otro!';
 
             // Check if the API error message indicates a duplicate number
-            if (strpos($errorMessage, 'duplicate') !== false || strpos($errorMessage, 'exist') !== false) {
-                $errorMessage = 'Número de teléfono ya registrado, intente con otro!';
-            }
+            //if (strpos($errorMessage, 'duplicate') !== false || strpos($errorMessage, 'exist') !== false) {
+                //$errorMessage = 'Número de teléfono ya registrado, intente con otro!';
+            //}
 
-            throw new Exception('Error al registrar el usuario: ' . $errorMessage);
+            echo json_encode(['success' => false, 'message' => '<div class="alert alert-danger">Error: ' . $errorMessage . '</div>']);
         }
 
     } catch (Exception $e) {
@@ -109,6 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h1><i class="fas fa-plus-circle"></i> Agregar Nuevo Número</h1>
     <div id="registerPhoneResponse"></div>
     <form id="registerPhoneForm">
+        <p></p>
         <div class="form-group">
             <label for="numero">Número de Teléfono:</label>
             <input type="text" id="numero" name="numero" class="form-control" placeholder="Número de teléfono con el prefijo del país: 584123456789" required>

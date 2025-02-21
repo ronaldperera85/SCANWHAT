@@ -32,7 +32,7 @@ $apiHelpdeskUrl = $baseUrl . '/api';
     <h1><i class="fas fa-code"></i> Desarrolladores</h1>
     <!-- Eliminar este div -->
     <!-- <div class="container">  -->
-        <p>Desde esta sección podrás probar el envío de mensajes.</p>
+         <!--<p>Desde esta sección podrás probar el envío de mensajes.</p>
 
         <div class="card" data-api-send-chat-url="<?php echo htmlspecialchars($apiSendChatUrl); ?>">
             <h2>Probar envío de mensajes</h2>
@@ -60,7 +60,7 @@ $apiHelpdeskUrl = $baseUrl . '/api';
                 <button type="submit"  class="btn btn-primary">Enviar</button>
                 <div id="sendMessageResponse" class="response"></div>
             </form>
-        </div>
+        </div>-->
 
         <div class="card">
         <h2><i class="fas fa-cog"></i> Instrucciones para ajustes dentro de <strong>ICAROSoft</strong></h2>

@@ -43,7 +43,7 @@ try {
 ?>
 
 <div class="content-container">
-<h1><i class="fas fa-home"></i> Dashboard</h1>
+<h1><i class="fas fa-home"></i> Tablero</h1>
     <?php if ($message): ?>
         <p class="<?php echo strpos($message, 'Error') !== false ? 'error' : ''; ?>"><?php echo $message; ?></p>
     <?php endif; ?>
