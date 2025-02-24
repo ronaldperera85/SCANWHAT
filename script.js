@@ -206,7 +206,9 @@ if (sendMessageForm) {
                     return;
                 }
 
-                registerPhoneResponse.innerHTML = 'Enviando solicitud...';
+                 // Mostrar el GIF de carga
+                 registerPhoneResponse.innerHTML = '<img src="img/loading.gif" alt="Cargando..." width="50">';
+                 registerPhoneResponse.innerHTML += ' Envíando solicitud...'; // Add this line
 
                 try {
                     const response = await fetch('pages/registrar_telefono.php', {

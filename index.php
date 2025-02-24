@@ -44,20 +44,21 @@ $faviconPath = "img/small.png";
            </ul>
         </nav>
         <div class="bottom-section">
-            <div class="theme-toggle">
-            <i class="fas fa-moon"></i>
-            <label class="switch">
-                <input type="checkbox" id="theme-checkbox">
-                <span class="slider round"></span>
-            </label>
-            <i class="fas fa-sun"></i>
-            </div>
-            <br><br/>
-            <div class="logout">
-            <span id="logout-link">
-                <i class="fas fa-sign-out-alt" id="logout-icon"></i><a href="pages/logout.php">Cerrar sesión</a>
-            </span>
-            </div>
+    <div class="theme-toggle">
+        <i class="fas fa-moon"></i>
+        <label class="switch">
+            <input type="checkbox" id="theme-checkbox">
+            <span class="slider round"></span>
+        </label>
+        <i class="fas fa-sun"></i>
+    </div>
+    <div class="separator"></div>  <!-- Aquí está el separador -->
+    <div class="logout">
+        <span id="logout-link">
+            <i class="fas fa-sign-out-alt" id="logout-icon"></i><a href="pages/logout.php">Cerrar sesión</a>
+        </span>
+    </div>
+</div>
         </div>
         <p></p>
     </aside>

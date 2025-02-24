@@ -1,3 +1,37 @@
+.separator {
+  border-bottom: 1px solid #ddd; /* Ajusta el color y grosor según necesites */
+  margin: 10px 0; /* Ajusta el espacio arriba y abajo según necesites */
+}
+
+body.dark-theme .separator {
+  border-bottom: 1px solid #fff; /* Ajusta el color para el tema oscuro */
+}
+/* Bottom Section */
+.bottom-section{
+margin-top: auto;
+}
+
+.bottom-section .logout{
+display: flex;
+align-items: center;
+color: #333;
+text-decoration: none;
+padding: 10px 15px;
+border-radius: 8px;
+transition: background-color 0.3s ease, color 0.3s ease;
+cursor: pointer;
+}
+
+.email-wrap {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.url-wrap {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
 .alert {
   padding: 15px;
   margin-bottom: 20px;

@@ -84,7 +84,7 @@ try {
                 </strong> <?php echo htmlspecialchars($user['nombre']); ?></p>
             <p><strong>
                     <h4>Email:</h4>
-                </strong> <?php echo htmlspecialchars($user['email']); ?></p>
+                </strong> <span class="email-wrap"><?php echo htmlspecialchars($user['email']); ?></span></p>
         </div>
         <div class="card">
             <h2>

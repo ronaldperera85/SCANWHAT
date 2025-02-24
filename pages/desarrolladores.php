@@ -66,9 +66,9 @@ $apiHelpdeskUrl = $baseUrl . '/api';
         <h2><i class="fas fa-cog"></i> Instrucciones para ajustes dentro de <strong>ICAROSoft</strong></h2>
             <p> </p>
             <p>- Para Helpdesk (Base Url): Soporte Técnico > Helpdesk > Configuración > Api Token</p>
-            <p><h4 id="apiHelpdeskUrl"><?php echo htmlspecialchars($apiHelpdeskUrl); ?></h4></p>
+            <p><h4 id="apiHelpdeskUrl" class="url-wrap"><?php echo htmlspecialchars($apiHelpdeskUrl); ?></h4></p>
             <p>- Para Masivos y Notificaciones (url): Mensajeria > WhatsApp > Perfiles Api</p>
-            <p><h4 id="apiSendChatUrl"><?php echo htmlspecialchars($apiSendChatUrl); ?></h4></p>
+            <p><h4 id="apiSendChatUrl" class="url-wrap"><?php echo htmlspecialchars($apiSendChatUrl); ?></h4></p>
         </div>
     <!-- Eliminar este div -->
     <!-- </div> -->
