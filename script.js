@@ -25,6 +25,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 initEventListeners();
                 initRegisterPhoneFormListener();
                 initChangePasswordFormListener();  // Ensure the listener is initialized after content loads
+                if (page === 'pages/admin.php') {
+                    initTokenToggle();
+                }
             })
             .catch(error => {
                 console.error('Error loading content:', error);
@@ -299,6 +302,27 @@ if (sendMessageForm) {
             return false;
         }
         return true;
+    }
+    function initTokenToggle() {
+        const tokenElements = document.querySelectorAll('.token-value');
+
+        tokenElements.forEach(tokenElement => {
+            const fullToken = tokenElement.textContent;
+            const shortenedToken = 'eyJhbGciOiJI...';
+            let isShortened = true;
+
+            tokenElement.textContent = shortenedToken;
+            tokenElement.style.cursor = 'pointer';
+
+            tokenElement.addEventListener('click', function() {
+                if (isShortened) {
+                    tokenElement.textContent = fullToken;
+                } else {
+                    tokenElement.textContent = shortenedToken;
+                }
+                isShortened = !isShortened;
+            });
+        });
     }
 
     // Cargar la página inicial

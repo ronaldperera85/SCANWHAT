@@ -1,3 +1,76 @@
+/* Estilo para el hover de las filas de la tabla en modo oscuro */
+body.dark-theme tbody tr:hover {
+  background-color: #9585e7;  /* Un color más oscuro y sutil para el hover */
+  color: #ddd; /* Para asegurar que el texto siga siendo legible */
+}
+
+/* Estilos para el encabezado de la tabla en tema oscuro */
+body.dark-theme th {
+  background-color: #343641;  /* Un gris más oscuro para el fondo */
+  color: #ddd;                /* Texto gris claro para mejor contraste */
+  border-color: #555;         /* Borde un poco más oscuro */
+}
+
+body.dark-theme td {
+border-color: #555;
+}
+
+.table-responsive {
+  overflow-x: auto; /* Permite el desplazamiento horizontal si la tabla es demasiado ancha */
+}
+
+.table-responsive table {
+  min-width: 100%; /* Asegura que la tabla ocupe al menos el 100% del ancho del contenedor */
+  white-space: nowrap; /* Evita el ajuste de línea en las celdas */
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border: 1px solid #ddd; /* Añade un borde a las celdas */
+}
+
+th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+/* Estilos para el panel de administrador */
+.content-container h1 {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+/* Estilos para la tabla de números */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+}
+
+tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Estilo para el token */
+.token {
+    word-break: break-all; /* Divide las palabras en cualquier carácter si es necesario */
+    white-space: normal;  /* Permite el ajuste de línea dentro del elemento */
+    max-width: 200px;  /* Define el ancho máximo para el token,ajustalo a tu gusto */
+}
+
 .separator {
   border-bottom: 1px solid #ddd; /* Ajusta el color y grosor según necesites */
   margin: 10px 0; /* Ajusta el espacio arriba y abajo según necesites */

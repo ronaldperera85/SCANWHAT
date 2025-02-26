@@ -22,8 +22,8 @@ try {
             $numeros_conectados++;
         }
 
-        // Consulta para obtener el total de mensajes enviados por cada número
-        $query_mensajes = "SELECT COUNT(*) AS total_enviados FROM mensajes WHERE remitente_uid = :numero AND estado = 'enviado'";
+        // Consulta para obtener el total de mensajes enviados por cada número CONECTADO
+        $query_mensajes = "SELECT SUM(l.mensajes_enviados) AS total_enviados FROM licencias l WHERE l.uid = :numero";
         $stmt_mensajes = $pdo->prepare($query_mensajes);
         $stmt_mensajes->execute(['numero' => $numero['numero']]);
         $mensajes_data = $stmt_mensajes->fetch(PDO::FETCH_ASSOC);

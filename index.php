@@ -1,10 +1,27 @@
 <?php
 session_start();
 
-// Si el usuario no está autenticado, redirigir a la página de inicio de sesión
+// Verificar si el usuario está autenticado
 if (!isset($_SESSION['user_id'])) {
     header("Location: pages/login.php");
     exit;
+}
+
+require 'db/conexion.php';  // Asegúrate de que este archivo defina la conexión $pdo
+
+// Función para verificar si el usuario es administrador
+function isAdmin($usuario_id, $pdo) {
+    try {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM usuarios WHERE id = :id AND admin = 1");
+        $stmt->execute(['id' => $usuario_id]);
+        $count = $stmt->fetchColumn();
+
+        return $count > 0;
+    } catch (PDOException $e) {
+        // Manejar el error adecuadamente (log, mensaje, etc.)
+        error_log("Error al verificar rol de admin: " . $e->getMessage());
+        return false; // Considerar no-admin en caso de error
+    }
 }
 
 // Definir la ruta al favicon (ajusta la ruta si es necesario)
@@ -41,6 +58,9 @@ $faviconPath = "img/small.png";
                <li><a href="#" data-page="pages/mi_cuenta.php"><i class="fas fa-user"></i><span>Mi cuenta</span></a></li>
                <li><a href="#" data-page="pages/mis_telefonos.php"><i class="fas fa-phone"></i><span>Mis teléfonos</span></a></li>
                <li><a href="#" data-page="pages/desarrolladores.php"><i class="fas fa-code"></i><span>Desarrolladores</span></a></li>
+               <?php if (isAdmin($_SESSION['user_id'], $pdo)): ?>
+                   <li><a href="#" data-page="pages/admin.php"><i class="fas fa-user-shield"></i><span>Administrador</span></a></li>
+               <?php endif; ?>
            </ul>
         </nav>
         <div class="bottom-section">
@@ -52,7 +72,7 @@ $faviconPath = "img/small.png";
         </label>
         <i class="fas fa-sun"></i>
     </div>
-    <div class="separator"></div>  <!-- Aquí está el separador -->
+    <div class="separator"></div>
     <div class="logout">
         <span id="logout-link">
             <i class="fas fa-sign-out-alt" id="logout-icon"></i><a href="pages/logout.php">Cerrar sesión</a>
