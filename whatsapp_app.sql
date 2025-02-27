@@ -26,7 +26,7 @@ CREATE TABLE `mensajes`  (
   `uid` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `custom_uid` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `token` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `tipo` enum('chat','imagen','video','documento','audio') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `tipo` VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `mensaje` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
   `estado` enum('enviado','recibido') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `remitente_uid` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
