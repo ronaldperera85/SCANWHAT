@@ -48,14 +48,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         $data = [
-            'uid' => $numero
+            'uid' => $numero,
+            'usuario_id' => $_SESSION['user_id'] ?? null // enviar el usuario_id al backend
         ];
 
         $ch = curl_init($apiUrlRegister);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data)); // Envía los datos como JSON
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']); // Indica que estás enviando JSON
 
         $response = curl_exec($ch);
 
@@ -74,25 +75,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($responseData['success']) {
             $qrCode = $responseData['data']['qrCode'] ?? null;
             $token = $responseData['data']['token'] ?? null;
-            $estado = 'conectado';
             $message = '<div class="alert alert-success">¡Número registrado exitosamente! Escanea este código QR para vincular tu número.</div>';
 
-            $stmt = $pdo->prepare("INSERT INTO numeros (usuario_id, numero, token, estado, hooks_url) VALUES (:usuario_id, :numero, :token, :estado, '')");
-            $stmt->execute([
-            'usuario_id' => $_SESSION['user_id'],
-            'numero' => $numero,
-            'token' => $token,
-            'estado' => $estado,
-            ]);
-
+            // Enviar el código QR como parte de la respuesta
             echo json_encode(['success' => true, 'message' => $message, 'qrCode' => $qrCode]);
         } else {
             $errorMessage = $responseData['message'] ?? '¡Número de teléfono ya registrado, intente con otro!';
-
-            // Check if the API error message indicates a duplicate number
-            //if (strpos($errorMessage, 'duplicate') !== false || strpos($errorMessage, 'exist') !== false) {
-                //$errorMessage = 'Número de teléfono ya registrado, intente con otro!';
-            //}
 
             echo json_encode(['success' => false, 'message' => '<div class="alert alert-danger">Error: ' . $errorMessage . '</div>']);
         }
@@ -110,10 +98,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div id="registerPhoneResponse"></div>
     <form id="registerPhoneForm">
         <p></p>
+       
         <div class="form-group">
             <label for="numero">Número de Teléfono:</label>
             <input type="text" id="numero" name="numero" class="form-control" placeholder="Número de teléfono con el prefijo del país: 584123456789" required>
         </div>
         <button type="submit" class="btn btn-primary">Generar QR</button>
     </form>
+
+    <!-- Sección para mostrar el código QR -->
+    <div id="qrCodeSection" style="display:none;">
+        <h2>Escanea el código QR con WhatsApp:</h2>
+        <img id="qrCodeImage" src="" alt="QR Code">
+    </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+        $('#registerPhoneForm').submit(function(e) {
+            e.preventDefault();
+
+            var formData = {
+                numero: $('#numero').val(),
+            };
+
+            $.ajax({
+                url: 'registrar_telefono.php',
+                type: 'POST',
+                contentType: 'application/json', // Indicamos que enviamos JSON
+                data: JSON.stringify(formData),   // Convertimos el objeto a JSON
+                dataType: 'json',
+                success: function(response) {
+                    $('#registerPhoneResponse').html(response.message);
+
+                    if (response.success) {
+                        // Mostrar el código QR si la respuesta es exitosa
+                        if (response.qrCode) {
+                            $('#qrCodeImage').attr('src', response.qrCode);
+                            $('#qrCodeSection').show();  // Mostrar la sección del código QR
+                        } else {
+                            $('#qrCodeSection').hide();  // Ocultar la sección si no hay código QR
+                        }
+                    } else {
+                        $('#qrCodeSection').hide();  // Ocultar la sección si hay un error
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $('#registerPhoneResponse').html('<div class="alert alert-danger">Error: ' + error + '</div>');
+                    $('#qrCodeSection').hide();  // Ocultar la sección en caso de error
+                }
+            });
+        });
+    });
+</script>

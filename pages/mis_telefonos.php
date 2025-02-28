@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$stmt = $pdo->prepare("SELECT * FROM numeros WHERE usuario_id = :usuario_id");
+$stmt = $pdo->prepare("SELECT * FROM numeros WHERE usuario_id = :usuario_id AND estado != 'pendiente'");
 $stmt->execute(['usuario_id' => $_SESSION['user_id']]);
 $numeros = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

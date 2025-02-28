@@ -45,7 +45,7 @@ CREATE TABLE `numeros`  (
   `usuario_id` int NOT NULL,
   `numero` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `estado` enum('conectado','desconectado') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT 'desconectado',
+  `estado` VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'pendiente',
   `hooks_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `fecha_registro` timestamp NOT NULL DEFAULT current_timestamp,
   PRIMARY KEY (`id`) USING BTREE,
