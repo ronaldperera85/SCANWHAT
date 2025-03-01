@@ -1,3 +1,19 @@
+.swal2-container {
+  z-index: 2000; /* Un valor alto */
+}
+
+.swal2-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4); /* Opacidad para el fondo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Estilo para el hover de las filas de la tabla en modo oscuro */
 body.dark-theme tbody tr:hover {
   background-color: #9585e7;  /* Un color más oscuro y sutil para el hover */
@@ -132,11 +148,6 @@ cursor: pointer;
   src: url('../fonts/Quicksand-Bold.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
-}
-
-body {
-  font-family: 'Quicksand', sans-serif;
-  /* ... (resto de tus estilos) ... */
 }
 
 body.dark-theme .card {
@@ -313,17 +324,33 @@ body {
   background-color: #f4f6f8;
   color: #333;
   display: flex;
-  height: 100vh;
+  min-height: 100vh; /* Cambia height a min-height */
+  flex-direction: column; /* Añade esto */
 }
 /*Main container*/
-.container {
-  display: flex;
+html, body {
   height: 100%;
 }
+
+.container {
+  display: flex;
+  height: 100vh; /* Ocupar el 100% del viewport height */
+}
+
+.content-area {
+  display: flex; /* Activar Flexbox */
+  flex-direction: column; /* Alinear contenido verticalmente */
+  flex: 1;
+  padding: 20px;
+  overflow: auto;
+  position: relative;
+}
+
 /* Sidebar Styling */
 aside.sidebar {
   background-color: #fff;
   width: 250px;
+  min-width: 250px;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -512,6 +539,7 @@ input:checked + .slider:before {
 /* Collapsed state */
 aside.sidebar.collapsed {
   width: 80px;
+  min-width: 80px;
   padding: 20px 10px;
 }
 
@@ -576,13 +604,6 @@ body.dark-theme .slider {
 }
 body.dark-theme input:checked + .slider {
   background-color: #9585e7;
-}
-
-/*Content area*/
-.content-area {
-  flex: 1;
-  padding: 20px;
-  overflow: auto;
 }
 
 #content-placeholder {

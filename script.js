@@ -47,7 +47,11 @@ document.addEventListener('DOMContentLoaded', function () {
             button.addEventListener('click', async function () {
                 const phoneNumber = this.getAttribute('data-phone-number');
                 if (!phoneNumber) {
-                    alert("Error: No se pudo obtener el número de teléfono.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'No se pudo obtener el número de teléfono.',
+                    });
                     return;
                 }
                 this.disabled = true;
@@ -69,11 +73,19 @@ document.addEventListener('DOMContentLoaded', function () {
                         loadContent('pages/mis_telefonos.php');
                     } else {
                         console.error("Error en la solicitud connect:", await response.text());
-                        alert('Error al conectar el número');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Error al conectar el número.',
+                        });
                     }
                 } catch (error) {
                     console.error("Error de red:", error);
-                    alert('Error de red al conectar el número.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Error de red al conectar el número.',
+                    });
                 } finally {
                     this.disabled = false;
                     this.textContent = 'Conectar';
@@ -86,60 +98,86 @@ document.addEventListener('DOMContentLoaded', function () {
                 const phoneId = this.getAttribute('data-phone-id');
                 const phoneNumber = this.getAttribute('data-phone-number');
                 if (!phoneId || !phoneNumber) {
-                    alert("Error: No se pudo obtener la información necesaria para cerrar sesión.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'No se pudo obtener la información necesaria para cerrar sesión.',
+                    });
                     return;
                 }
 
-                if (confirm("¿Estás seguro de que deseas cerrar sesión de este número?")) {
-                    this.disabled = true;
-                    this.textContent = 'Cerrando Sesión...';
+                Swal.fire({
+                    title: "¿Estás seguro de que deseas cerrar sesión de este número?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, cerrar sesión!',
+                    cancelButtonText: 'Cancelar'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        this.disabled = true;
+                        this.textContent = 'Cerrando Sesión...';
 
-                    try {
-                        const disconnectResponse = await fetch('pages/mis_telefonos.php', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: new URLSearchParams({
-                                'action': 'delete',
-                                'phoneNumber': phoneNumber
-                            })
-                        });
+                        try {
+                            const disconnectResponse = await fetch('pages/mis_telefonos.php', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                },
+                                body: new URLSearchParams({
+                                    'action': 'delete',
+                                    'phoneNumber': phoneNumber
+                                })
+                            });
 
-                        if (!disconnectResponse.ok) {
-                            console.error("Error al desconectar:", await disconnectResponse.text());
-                            alert('Error al cerrar sesión del número.');
+                            if (!disconnectResponse.ok) {
+                                console.error("Error al desconectar:", await disconnectResponse.text());
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: 'Error al cerrar sesión del número.',
+                                });
+                                this.disabled = false;
+                                this.textContent = 'Cerrar Sesión';
+                                return;
+                            }
+
+                            const deleteResponse = await fetch('pages/mis_telefonos.php', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                },
+                                body: new URLSearchParams({
+                                    'action': 'delete',
+                                    'id': phoneId,
+                                    'phoneNumber': phoneNumber
+                                })
+                            });
+
+                            if (deleteResponse.ok) {
+                                loadContent('pages/mis_telefonos.php');
+                            } else {
+                                console.error("Error en la solicitud delete:", await deleteResponse.text());
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: 'Error al cerrar sesión del número.',
+                                });
+                            }
+                        } catch (error) {
+                            console.error("Error de red:", error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Error de red al cerrar sesión del número.',
+                            });
+                        } finally {
                             this.disabled = false;
                             this.textContent = 'Cerrar Sesión';
-                            return;
                         }
-
-                        const deleteResponse = await fetch('pages/mis_telefonos.php', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: new URLSearchParams({
-                                'action': 'delete',
-                                'id': phoneId,
-                                'phoneNumber': phoneNumber
-                            })
-                        });
-
-                        if (deleteResponse.ok) {
-                            loadContent('pages/mis_telefonos.php');
-                        } else {
-                            console.error("Error en la solicitud delete:", await deleteResponse.text());
-                            alert('Error al cerrar sesión del número.');
-                        }
-                    } catch (error) {
-                        console.error("Error de red:", error);
-                        alert('Error de red al cerrar sesión del número.');
-                    } finally {
-                        this.disabled = false;
-                        this.textContent = 'Cerrar Sesión';
                     }
-                }
+                });
             });
         });
 
@@ -159,7 +197,11 @@ if (sendMessageForm) {
         const responseContainer = document.getElementById('sendMessageResponse');
 
         if (!apiToken || !waAccount || !recipientAccount || !messageText) {
-            alert("Todos los campos son obligatorios.");
+            Swal.fire({
+        icon: 'warning',
+        title: 'Advertencia!',
+        text: 'Todos los campos son obligatorios.',
+      });
             return;
         }
 
@@ -297,9 +339,13 @@ if (sendMessageForm) {
         const phoneNumberInput = document.getElementById('numero');
 
         if (!phoneNumberRegex.test(phoneNumber)) {
-            alert('Por favor, ingrese un número de teléfono válido en formato venezolano (ej: 584123456789 o 584241234567). Debe comenzar con 584 y tener entre 12 y 13 dígitos.');
-            phoneNumberInput.focus();
-            return false;
+         Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'Por favor, ingrese un número de teléfono válido en formato WhatsApp (ej: 584125927917 o 573205649404). Debe comenzar con 584 y tener entre 12 y 13 dígitos.',
+         });
+         phoneNumberInput.focus();
+         return false;
         }
         return true;
     }
