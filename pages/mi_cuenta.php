@@ -76,20 +76,12 @@ try {
     </div>
     <?php if ($user): ?>
         <div class="card">
-            <h2>
-                <p style="text-align: center;">Información de la Cuenta</p>
-            </h2>
-            <p><strong>
-                    <h4>Nombre:</h4>
-                </strong> <?php echo htmlspecialchars($user['nombre']); ?></p>
-            <p><strong>
-                    <h4>Email:</h4>
-                </strong> <span class="email-wrap"><?php echo htmlspecialchars($user['email']); ?></span></p>
+            <h2 style="text-align: center;">Información de la Cuenta</h2>
+            <p><strong>Nombre:</strong> <?php echo htmlspecialchars($user['nombre']); ?></p>
+            <p><strong>Email:</strong> <span class="email-wrap"><?php echo htmlspecialchars($user['email']); ?></span></p>
         </div>
         <div class="card">
-            <h2>
-                <p style="text-align: center;">Cambiar Contraseña</p>
-            </h2>
+            <h2 style="text-align: center;">Cambiar Contraseña</h2>
             <form id="changePasswordForm" style="text-align: center;">
                 <input type="hidden" name="change_password" value="1">
                 <div class="form-group">

@@ -43,42 +43,46 @@ try {
 ?>
 
 <div class="content-container">
-<h1><i class="fas fa-home"></i> Tablero</h1>
+    <h1><i class="fas fa-home"></i> Tablero</h1>
     <?php if ($message): ?>
         <p class="<?php echo strpos($message, 'Error') !== false ? 'error' : ''; ?>"><?php echo $message; ?></p>
     <?php endif; ?>
+
     <div class="dashboard-summary">
         <div class="card">
-        <i class="fas fa-envelope icon icon-chat" style="color: #7c5dfa;"></i>
+            <i class="fas fa-envelope icon icon-chat" style="color: #7c5dfa;"></i>
             <h2>Mensajes Enviados</h2>
             <p style="text-align: center;"><h1><?php echo $total_mensajes_enviados; ?></h1></p>
         </div>
         <div class="card">
-        <i class="fas fa-phone-alt icon icon-instances" style="color: #7c5dfa;"></i>
+            <i class="fas fa-phone-alt icon icon-instances" style="color: #7c5dfa;"></i>
             <h2>Números Conectados</h2>
             <p style="text-align: center;"><h1><?php echo $numeros_conectados; ?></h1></p>
         </div>
     </div>
 
-    <?php foreach ($numeros as $index => $numero): ?>
-        <div class="card">
-            <h2><p style="text-align: center;">Licencia para el número <?php echo $numero['numero'] ?></p></h2>
-            <?php if (!empty($licencias[$index])):
-                $licencia = $licencias[$index];
-                $mensajes_disponibles = !empty($licencia) ? max(0, $licencia['limite_mensajes'] - $licencia['mensajes_enviados']) : 0;
-                ?>
-                <p><strong><h4>Tipo:</h4></strong> <?php echo htmlspecialchars($licencia['tipo_licencia']); ?></p>
-                <!-- <p><strong>Mensajes Enviados:</strong> <?php echo htmlspecialchars($licencia['mensajes_enviados']); ?></p> -->
-                <p><strong><h4>Límite de Mensajes:</h4></strong> <?php echo htmlspecialchars($licencia['limite_mensajes']); ?></p>
-                <p><strong><h4>Mensajes Disponibles:</h4></strong> <?php echo htmlspecialchars($mensajes_disponibles); ?></p>
-                <p><strong><h4>Estado:</h4></strong> <?php echo htmlspecialchars($licencia['estado_licencia']); ?></p>
-                <p><strong><h4>Inicio:</h4></strong> <?php echo htmlspecialchars($licencia['fecha_inicio']); ?></p>
-                <?php if ($licencia['fecha_fin']): ?>
-                    <p><strong>Fin:</strong> <?php echo htmlspecialchars($licencia['fecha_fin']); ?></p>
+    <?php if (empty($numeros)): ?>
+        <p>No hay números registrados en el sistema.</p>
+    <?php else: ?>
+        <?php foreach ($numeros as $index => $numero): ?>
+            <div class="card">
+                <h2 style="text-align: center;">Licencia para el número <?php echo $numero['numero'] ?></h2>
+                <?php if (!empty($licencias[$index])):
+                    $licencia = $licencias[$index];
+                    $mensajes_disponibles = !empty($licencia) ? max(0, $licencia['limite_mensajes'] - $licencia['mensajes_enviados']) : 0;
+                    ?>
+                    <p><strong>Tipo:</strong> <?php echo htmlspecialchars($licencia['tipo_licencia']); ?></p>
+                    <p><strong>Límite de Mensajes:</strong> <?php echo htmlspecialchars($licencia['limite_mensajes']); ?></p>
+                    <p><strong>Mensajes Disponibles:</strong> <?php echo htmlspecialchars($mensajes_disponibles); ?></p>
+                    <p><strong>Estado:</strong> <?php echo htmlspecialchars($licencia['estado_licencia']); ?></p>
+                    <p><strong>Inicio:</strong> <?php echo htmlspecialchars($licencia['fecha_inicio']); ?></p>
+                    <?php if ($licencia['fecha_fin']): ?>
+                        <p><strong>Fin:</strong> <?php echo htmlspecialchars($licencia['fecha_fin']); ?></p>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <p>No hay información de licencia disponible.</p>
                 <?php endif; ?>
-            <?php else: ?>
-                <p>No hay información de licencia disponible.</p>
-            <?php endif; ?>
-        </div>
-    <?php endforeach; ?>
+            </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
 </div>

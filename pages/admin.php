@@ -88,7 +88,7 @@ try {
 
     <div class="dashboard-summary">
         <div class="card">
-        <i class="fas fa-envelope icon icon-chat" style="color: #7c5dfa;"></i>
+            <i class="fas fa-envelope icon icon-chat" style="color: #7c5dfa;"></i>
             <h2>Mensajes Enviados</h2>
             <?php 
                 $total_mensajes_enviados = 0;
@@ -99,7 +99,7 @@ try {
             <p style="text-align: center;"><h1><?php echo $total_mensajes_enviados; ?></h1></p>
         </div>
         <div class="card">
-        <i class="fas fa-phone-alt icon icon-instances" style="color: #7c5dfa;"></i>
+            <i class="fas fa-phone-alt icon icon-instances" style="color: #7c5dfa;"></i>
             <h2>Números Conectados</h2>
             <p style="text-align: center;"><h1><?php echo $numeros_conectados; ?></h1></p>
         </div>
@@ -109,31 +109,32 @@ try {
         <p>No hay números registrados en el sistema.</p>
     <?php else: ?>
         <div class="card">
-        <div class="table-responsive">
-    <table>
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Número</th>
-                <th>Token</th>
-                <th>Límite de Mensajes</th>
-                <th>Mensajes Enviados</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($numeros as $numero): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($numero['nombre_usuario']); ?></td>
-                    <td><?php echo htmlspecialchars($numero['numero']); ?></td>
-                    <td class="token">
-                        <span class="token-value"><?php echo htmlspecialchars($numero['token']); ?></span>
-                    </td>
-                    <td><?php echo htmlspecialchars($numero['limite_mensajes']); ?></td>
-                    <td><?php echo htmlspecialchars($numero['total_mensajes_enviados']); ?></td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-</div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Número</th>
+                            <th>Token</th>
+                            <th>Límite de Mensajes</th>
+                            <th>Mensajes Enviados</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($numeros as $numero): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($numero['nombre_usuario']); ?></td>
+                                <td><?php echo htmlspecialchars($numero['numero']); ?></td>
+                                <td class="token">
+                                    <span class="token-value"><?php echo htmlspecialchars($numero['token']); ?></span>
+                                </td>
+                                <td><?php echo htmlspecialchars($numero['limite_mensajes']); ?></td>
+                                <td><?php echo htmlspecialchars($numero['total_mensajes_enviados']); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     <?php endif; ?>
 </div>
