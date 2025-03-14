@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Regular expression for 584XXXXXXXXX or 584XXXXXXXXXX
+    // Regular expression for XXXXXXXXXXXX
     if (!preg_match('/^\d{8,15}$/', $numero)) {
         echo json_encode(['success' => false, 'message' => 'Por favor, ingrese un número de teléfono válido en formato WhatsApp (ej: 584125927917 o 573205649404). Debe comenzar con 584 y tener entre 12 y 13 dígitos.']);
         exit;
