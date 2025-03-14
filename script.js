@@ -335,7 +335,7 @@ if (sendMessageForm) {
     }
 
     function validatePhoneNumber(phoneNumber) {
-        const phoneNumberRegex = /^584\d{9,10}$/; // Regular expression for 584XXXXXXXXX or 584XXXXXXXXXX
+        const phoneNumberRegex = /^\d{10,15}$/; // Regular expression for XXXXXXXXXXXX
         const phoneNumberInput = document.getElementById('numero');
 
         if (!phoneNumberRegex.test(phoneNumber)) {
