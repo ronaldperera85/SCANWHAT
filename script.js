@@ -95,17 +95,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
         document.querySelectorAll('.delete-btn').forEach(button => {
             button.addEventListener('click', async function () {
-                const phoneId = this.getAttribute('data-phone-id');
-                const phoneNumber = this.getAttribute('data-phone-number');
-                if (!phoneId || !phoneNumber) {
+                // const phoneId = this.getAttribute('data-phone-id'); // <<-- ELIMINAR O COMENTAR ESTA LÍNEA
+                const phoneNumber = this.getAttribute('data-phone-number'); // Solo necesitamos el número
+
+                // La comprobación ahora solo necesita phoneNumber
+                if (!phoneNumber) { // <<-- AJUSTAR LA CONDICIÓN
                     Swal.fire({
                         icon: 'error',
                         title: 'Error!',
-                        text: 'No se pudo obtener la información necesaria para cerrar sesión.',
+                        // Mensaje ligeramente ajustado
+                        text: 'No se pudo obtener el número de teléfono para cerrar sesión.',
                     });
                     return;
                 }
 
+                // Confirmación Swal (sin cambios)
                 Swal.fire({
                     title: "¿Estás seguro de que deseas cerrar sesión de este número?",
                     icon: 'warning',
@@ -120,45 +124,21 @@ document.addEventListener('DOMContentLoaded', function () {
                         this.textContent = 'Cerrando Sesión...';
 
                         try {
+                            // Llamada fetch (sin cambios, ya estaba correcta)
                             const disconnectResponse = await fetch('pages/mis_telefonos.php', {
                                 method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/x-www-form-urlencoded',
-                                },
+                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                                 body: new URLSearchParams({
-                                    'action': 'delete',
-                                    'phoneNumber': phoneNumber
+                                    'action': 'disconnect_user',
+                                    'phoneNumber': phoneNumber // Solo envía el número
                                 })
                             });
 
-                            if (!disconnectResponse.ok) {
-                                console.error("Error al desconectar:", await disconnectResponse.text());
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error!',
-                                    text: 'Error al cerrar sesión del número.',
-                                });
-                                this.disabled = false;
-                                this.textContent = 'Cerrar Sesión';
-                                return;
-                            }
-
-                            const deleteResponse = await fetch('pages/mis_telefonos.php', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/x-www-form-urlencoded',
-                                },
-                                body: new URLSearchParams({
-                                    'action': 'delete',
-                                    'id': phoneId,
-                                    'phoneNumber': phoneNumber
-                                })
-                            });
-
-                            if (deleteResponse.ok) {
+                            // Manejo de respuesta (sin cambios)
+                            if (disconnectResponse.ok) {
                                 loadContent('pages/mis_telefonos.php');
                             } else {
-                                console.error("Error en la solicitud delete:", await deleteResponse.text());
+                                console.error("Error al desconectar:", await disconnectResponse.text());
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Error!',
@@ -166,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 });
                             }
                         } catch (error) {
+                            // Manejo de error (sin cambios)
                             console.error("Error de red:", error);
                             Swal.fire({
                                 icon: 'error',
@@ -173,6 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 text: 'Error de red al cerrar sesión del número.',
                             });
                         } finally {
+                            // Finally block (sin cambios)
                             this.disabled = false;
                             this.textContent = 'Cerrar Sesión';
                         }
@@ -180,9 +162,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             });
         });
-
+        
                // Evento para envío de mensajes
-               const sendMessageForm = document.getElementById('sendMessageForm');
+                const sendMessageForm = document.getElementById('sendMessageForm');
 if (sendMessageForm) {
     sendMessageForm.addEventListener('submit', async function (event) {
         event.preventDefault();
@@ -201,7 +183,7 @@ if (sendMessageForm) {
         icon: 'warning',
         title: 'Advertencia!',
         text: 'Todos los campos son obligatorios.',
-      });
+        });
             return;
         }
 
@@ -220,22 +202,22 @@ if (sendMessageForm) {
                     text: messageText
                 })
             });
-           
-                           const data = await response.json();
-           
-                           if (response.ok) {
-                               responseContainer.innerHTML = `<p class="success">Mensaje enviado correctamente.</p>`;
-                           } else {
-                               console.error("Error en el envío de mensaje:", data);
-                               responseContainer.innerHTML = `<p class="error">Error: ${data.error || 'No se pudo enviar el mensaje'}</p>`;
-                           }
-                       } catch (error) {
-                           console.error("Error de red:", error);
-                           responseContainer.innerHTML = `<p class="error">Error de red al enviar el mensaje.</p>`;
-                       }
-                   });
-               }
-           }
+
+                        const data = await response.json();
+
+                        if (response.ok) {
+                            responseContainer.innerHTML = `<p class="success">Mensaje enviado correctamente.</p>`;
+                        } else {
+                            console.error("Error en el envío de mensaje:", data);
+                            responseContainer.innerHTML = `<p class="error">Error: ${data.error || 'No se pudo enviar el mensaje'}</p>`;
+                        }
+                            } catch (error) {
+                        console.error("Error de red:", error);
+                        responseContainer.innerHTML = `<p class="error">Error de red al enviar el mensaje.</p>`;
+                            }
+                    });
+            }
+            }
 
     function initRegisterPhoneFormListener() {
         const registerPhoneForm = document.getElementById('registerPhoneForm');
@@ -252,7 +234,7 @@ if (sendMessageForm) {
                 }
 
                  // Mostrar el GIF de carga
-                 registerPhoneResponse.innerHTML = '<img src="img/loading.gif" alt="Cargando..." width="50">';
+                registerPhoneResponse.innerHTML = '<img src="img/loading.gif" alt="Cargando..." width="50">';
                  registerPhoneResponse.innerHTML += ' Envíando solicitud...'; // Add this line
 
                 try {
@@ -273,12 +255,12 @@ if (sendMessageForm) {
                         if (data.qrCode) {
                             registerPhoneResponse.innerHTML += `<div class="qr-container"><img src="${data.qrCode}" alt="QR Code"></div>`;
                         }
-                       const volverBtn = document.createElement('button');
-                      volverBtn.textContent = 'Volver a Mis Teléfonos';
-                      volverBtn.className = 'btn btn-primary';
-                       volverBtn.addEventListener('click', function() {
+                    const volverBtn = document.createElement('button');
+                    volverBtn.textContent = 'Volver a Mis Teléfonos';
+                    volverBtn.className = 'btn btn-primary';
+                    volverBtn.addEventListener('click', function() {
                         loadContent('pages/mis_telefonos.php');
-                      });
+                    });
                      registerPhoneResponse.appendChild(volverBtn); // Append the button to the response container
                     } else {
                         registerPhoneResponse.innerHTML = `<p class="error">${data.message}</p>`;
@@ -291,7 +273,7 @@ if (sendMessageForm) {
             });
         }
     }
-     function initChangePasswordFormListener() {
+    function initChangePasswordFormListener() {
         const changePasswordForm = document.getElementById('changePasswordForm');
         if (changePasswordForm) {
             changePasswordForm.addEventListener('submit', async function (event) {
@@ -322,7 +304,7 @@ if (sendMessageForm) {
                     const data = await response.json();
 
                     if (data.success) {
-                         changePasswordResponse.innerHTML = `<p class="success">${data.message}</p>`;
+                        changePasswordResponse.innerHTML = `<p class="success">${data.message}</p>`;
                     } else {
                         changePasswordResponse.innerHTML = `<p class="error">${data.message}</p>`;
                     }
@@ -339,13 +321,13 @@ if (sendMessageForm) {
         const phoneNumberInput = document.getElementById('numero');
 
         if (!phoneNumberRegex.test(phoneNumber)) {
-         Swal.fire({
-          icon: 'error',
-          title: 'Error!',
-          text: 'Por favor, ingrese un número de teléfono válido en formato WhatsApp (ej: 584125927917 o 573205649404). Debe comenzar con 584 y tener entre 12 y 13 dígitos.',
-         });
-         phoneNumberInput.focus();
-         return false;
+        Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Por favor, ingrese un número de teléfono válido en formato WhatsApp (ej: 584125927917 o 573205649404). Debe comenzar con 584 y tener entre 12 y 13 dígitos.',
+        });
+        phoneNumberInput.focus();
+        return false;
         }
         return true;
     }
@@ -398,6 +380,6 @@ if (sendMessageForm) {
     // Inicializar eventos en la primera carga
     initEventListeners();
     initRegisterPhoneFormListener();
-      initChangePasswordFormListener();
+    initChangePasswordFormListener();
 
 });

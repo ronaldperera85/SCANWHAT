@@ -96,7 +96,7 @@ try {
                     <label for="confirm_password">Confirmar Nueva Contraseña:</label>
                     <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-key"></i> Cambiar Contraseña</button>
                 <div id="changePasswordResponse"></div>
             </form>
         </div>
