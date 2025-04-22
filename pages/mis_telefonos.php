@@ -3,7 +3,7 @@ session_start(); // Asegurar inicio de sesión
 
 // Redirigir si el usuario no está logueado
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../index.php'); // O tu página de login
+    header('Location: ../index.php');
     exit;
 }
 
@@ -20,57 +20,79 @@ if (!function_exists('loadEnv')) {
             if (strpos(trim($line), '#') === 0) {
                 continue;
             }
+            // Ignora líneas sin '='
+            if (strpos($line, '=') === false) {
+                continue;
+            }
             list($key, $value) = explode('=', $line, 2);
-            $_ENV[trim($key)] = trim($value);
-            putenv(trim($key) . '=' . trim($value)); // También para getenv() si se usa
+            $key = trim($key);
+            $value = trim($value);
+            // Manejo básico de comillas (opcional, mejora la robustez)
+            if (substr($value, 0, 1) == '"' && substr($value, -1) == '"') {
+                $value = substr($value, 1, -1);
+            }
+            if (substr($value, 0, 1) == "'" && substr($value, -1) == "'") {
+                $value = substr($value, 1, -1);
+            }
+            $_ENV[$key] = $value;
+            putenv("$key=$value");
         }
         return true;
     }
 }
 
 if (!loadEnv(__DIR__ . '/../.env')) {
-    // Considera un manejo de error más robusto o valores por defecto
     error_log("Error crítico: No se pudo cargar el archivo .env");
     die("Error de configuración del servidor.");
 }
 
-$message = ""; // Para mensajes de feedback al usuario
-$message_type = "info"; // Para aplicar clases CSS (info, error, success)
+// --- Recuperar Mensaje de Sesión (SI EXISTE) ---
+$message = $_SESSION['feedback_message'] ?? ""; // Lee desde sesión
+$message_type = $_SESSION['feedback_type'] ?? "info"; // Lee desde sesión
+
+// --- Limpiar Mensaje de Sesión (Después de leerlo) ---
+unset($_SESSION['feedback_message']);
+unset($_SESSION['feedback_type']);
 
 // URLs de la API Backend (Node.js)
-$baseUrl = rtrim(getenv('BACKEND_URL') ?: 'http://localhost:3000', '/'); // Usa getenv y valor por defecto
+$baseUrl = rtrim(getenv('BACKEND_URL') ?: 'http://localhost:3000', '/');
 $apiUrlRegister = $baseUrl . '/api/register';
-$apiUrlDisconnect = $baseUrl . '/api/disconnect'; // La URL base para desconectar (se añadirá /:uid)
+$apiUrlDisconnect = $baseUrl . '/api/disconnect';
 
 // --- Procesamiento de Acciones POST ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
-    $app = isset($_POST['app']) ? trim($_POST['app']) : 'default'; // Identificador de app (si se usa)
+    $temp_message = ""; // Mensaje temporal para la acción POST
+    $temp_message_type = "info"; // Tipo temporal
 
     // --- Acción: Conectar (Iniciar Vinculación/Registro) ---
     if ($action === 'connect') {
         $numero = isset($_POST['phoneNumber']) ? trim($_POST['phoneNumber']) : '';
+        $valid = true; // Flag de validación
 
         if (empty($numero)) {
-            $message = "Por favor, ingresa un número de teléfono.";
-            $message_type = "error";
+            $temp_message = "Por favor, ingresa un número de teléfono.";
+            $temp_message_type = "error";
+            $valid = false;
         } elseif (!preg_match('/^\d{10,15}$/', $numero)) { // Validación básica
-            $message = "El número de teléfono debe contener solo dígitos (10-15).";
-            $message_type = "error";
-        } else {
-            // Prepara datos para la API de registro
+            $temp_message = "El número de teléfono debe contener solo dígitos (10-15).";
+            $temp_message_type = "error";
+            $valid = false;
+        }
+
+        if ($valid) {
             $data = [
                 'uid' => $numero,
-                'usuario_id' => $_SESSION['user_id'] // Envía el usuario_id a la API
-                // 'app' => $app // Descomentar si la API necesita 'app'
+                'usuario_id' => $_SESSION['user_id']
             ];
 
+            error_log("MIS_TELEFONOS (POST Connect): Llamando a API Register URL: " . $apiUrlRegister);
             $ch = curl_init($apiUrlRegister);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data)); // Enviar como JSON
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 65); // Timeout más largo para esperar QR
+            curl_setopt($ch, CURLOPT_TIMEOUT, 65);
 
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -78,56 +100,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             curl_close($ch);
 
             if ($curlError) {
-                $message = 'Error de conexión con la API de registro: ' . $curlError;
-                $message_type = "error";
+                $temp_message = 'Error cURL: ' . $curlError;
+                $temp_message_type = "error";
                 error_log("cURL Error (Register API): " . $curlError);
             } else {
                 $responseData = json_decode($response, true);
+                error_log("Register API Response (HTTP $httpCode) for $numero: " . $response);
 
                 if ($httpCode == 200 && isset($responseData['success']) && $responseData['success']) {
-                    // Éxito al obtener QR y Token desde la API
                     $qrCode = $responseData['data']['qrCode'] ?? null;
-                    $token = $responseData['data']['token'] ?? null; // El token (nuevo o existente)
+                    $token = $responseData['data']['token'] ?? null;
 
-                    if ($qrCode && $token) {
-                        // Guardar QR en sesión para mostrarlo temporalmente
+                    if ($qrCode) { // Solo necesitamos el QR
+                        // Asegurar formato Data URI
+                        if (!str_starts_with($qrCode, 'data:image')) {
+                            $qrCode = 'data:image/png;base64,' . $qrCode;
+                            error_log("QR Code para $numero: Prefijo Data URI añadido.");
+                        } else {
+                            error_log("QR Code para $numero: Ya tenía prefijo Data URI.");
+                        }
+                        // GUARDAR QR EN SESIÓN
+                        $_SESSION['show_qr'] = $_SESSION['show_qr'] ?? []; // Inicializa si no existe
                         $_SESSION['show_qr'][$numero] = $qrCode;
-                        $message = "Escanea el código QR para vincular el número " . htmlspecialchars($numero);
-                        $message_type = "info"; // O "success"
-                        // No actualizamos estado aquí, registerUser/createSession lo pone en 'pendiente'
-                        // y el evento 'ready' de whatsapp-web.js lo pone en 'conectado'
+                        $temp_message = "Escanea el código QR para vincular el número " . htmlspecialchars($numero);
+                        $temp_message_type = "info";
+                        error_log("QR Code guardado en sesión para $numero.");
+                        // Node.js ya puso el estado en 'pendiente'
                     } else {
-                        $message = "Respuesta exitosa de la API, pero faltan datos (QR o Token).";
-                        $message_type = "warning";
-                        error_log("Register API Success but missing data: " . $response);
+                        $temp_message = "API OK, pero no devolvió QR.";
+                        $temp_message_type = "warning";
+                        error_log("Register API Success but missing QR for $numero: " . $response);
                     }
-
                 } else {
-                    // Error desde la API de registro
-                    $apiMessage = $responseData['message'] ?? $responseData['error'] ?? 'Respuesta inesperada de la API.';
-                    $message = "Error al iniciar la vinculación: " . htmlspecialchars($apiMessage) . " (HTTP: $httpCode)";
-                    $message_type = "error";
-                    error_log("Register API Error (HTTP: $httpCode): " . $response);
+                    $apiMessage = $responseData['message'] ?? $responseData['error'] ?? 'Respuesta inesperada.';
+                    $temp_message = "Error al iniciar la vinculación: " . htmlspecialchars($apiMessage) . " (HTTP: $httpCode)";
+                    $temp_message_type = "error";
+                    error_log("Register API Error (HTTP: $httpCode) for $numero: " . $response);
                 }
             }
         }
+        // $temp_message y $temp_message_type ya están seteados si hubo error de validación
+    }
     // --- Acción: Desconectar Usuario ---
-    } elseif ($action === 'disconnect_user') { // Coincide con el JS actualizado
+    elseif ($action === 'disconnect_user') {
         $phoneNumber = isset($_POST['phoneNumber']) ? trim($_POST['phoneNumber']) : '';
 
         if (empty($phoneNumber)) {
-            $message = "El número de teléfono es obligatorio para desconectar.";
-            $message_type = "error";
+            $temp_message = "El número de teléfono es obligatorio para desconectar.";
+            $temp_message_type = "error";
         } else {
-            // Llama a la API Node.js para desconectar (UPDATE estado = 'desconectado')
-            $disconnectUrl = $apiUrlDisconnect . "/" . urlencode($phoneNumber); // Construye la URL correctamente
+            $disconnectUrl = $apiUrlDisconnect . "/" . urlencode($phoneNumber);
+            error_log("MIS_TELEFONOS (POST Disconnect): Llamando a API Disconnect URL: " . $disconnectUrl);
 
             $ch = curl_init($disconnectUrl);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST'); // Asegúrate que coincida con el método en Node.js
-            curl_setopt($ch, CURLOPT_TIMEOUT, 30); // Timeout razonable para desconectar
-            // curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']); // Añadir si es necesario
-            // curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([])); // Enviar cuerpo si es POST
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -135,101 +163,95 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             curl_close($ch);
 
             if ($curlError) {
-                $message = 'Error de conexión con la API de desconexión: ' . $curlError;
-                $message_type = "error";
+                $temp_message = 'Error de conexión con la API de desconexión: ' . $curlError;
+                $temp_message_type = "error";
                 error_log("cURL Error (Disconnect API): " . $curlError);
             } else {
                 $responseData = json_decode($response, true);
+                error_log("Disconnect API Response (HTTP $httpCode) for $phoneNumber: " . $response);
 
-                // Considera éxito si es 200 OK o 404 (Sesión no encontrada, ya estaba desconectada)
                 if ($httpCode == 200 || $httpCode == 404) {
-                    // Éxito (o ya estaba desconectado)
-                    $message = $responseData['message'] ?? "Solicitud de desconexión procesada.";
-                    $message_type = "success";
-
-                    // Limpiar QR de la sesión PHP si estaba pendiente
+                    $temp_message = $responseData['message'] ?? "Solicitud de desconexión procesada.";
+                    $temp_message_type = "success";
+                    // Limpiar QR de la sesión si estaba pendiente
                     if (isset($_SESSION['show_qr'][$phoneNumber])) {
                         unset($_SESSION['show_qr'][$phoneNumber]);
+                        error_log("QR pendiente eliminado de sesión durante desconexión para $phoneNumber.");
                     }
-
-                    // ***** NO HAY DELETE FROM numeros *****
-                    // La API de Node.js ya hizo UPDATE numeros SET estado = 'desconectado'
-
                 } else {
-                    // Hubo un error en la API de Node.js
-                    $apiMessage = $responseData['message'] ?? $responseData['error'] ?? "Error desconocido (HTTP $httpCode)";
-                    $message = "Error al procesar la desconexión: " . htmlspecialchars($apiMessage);
-                    $message_type = "error";
-                    error_log("Disconnect API Error (HTTP: $httpCode): " . $response);
+                    $apiMessage = $responseData['message'] ?? $responseData['error'] ?? "Error desconocido";
+                    $temp_message = "Error al procesar la desconexión: " . htmlspecialchars($apiMessage) . " (HTTP $httpCode)";
+                    $temp_message_type = "error";
+                    error_log("Disconnect API Error (HTTP: $httpCode) for $phoneNumber: " . $response);
                 }
             }
         }
     }
-    // Añadir aquí otras acciones si es necesario (elseif...)
 
-    // Limpiar variables POST para evitar reenvíos accidentales (opcional)
-    // unset($_POST); // Puede ser muy agresivo, usar con cuidado
-}
+    // --- GUARDAR MENSAJE TEMPORAL EN SESIÓN ---
+    if ($temp_message) {
+        $_SESSION['feedback_message'] = $temp_message;
+        $_SESSION['feedback_type'] = $temp_message_type;
+    }
 
-// --- Obtener la lista ACTUALIZADA de números del usuario desde la DB ---
-// *** Se quita el filtro AND estado != 'pendiente' para mostrar TODOS ***
+    // --- IMPORTANTE: Terminar ejecución después de POST ---
+    exit(); // Previene renderizado HTML en respuesta POST
+
+} // Fin del bloque if ($_SERVER['REQUEST_METHOD'] === 'POST')
+
+// --- Obtener la lista ACTUALIZADA de números (para la carga GET) ---
 try {
     $stmt = $pdo->prepare("SELECT id, numero, token, estado FROM numeros WHERE usuario_id = :usuario_id ORDER BY id DESC");
     $stmt->execute(['usuario_id' => $_SESSION['user_id']]);
     $numeros = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
+    // Establece el mensaje directamente aquí para la carga GET si hay error DB
     $message = "Error al recuperar la lista de números: " . $e->getMessage();
     $message_type = "error";
     error_log("DB Error fetching numeros: " . $e->getMessage());
-    $numeros = []; // Asegurar que $numeros sea un array vacío en caso de error
+    $numeros = [];
 }
 
 ?>
 
+<!-- ========= HTML PARA LA CARGA GET ========= -->
 <div class="content-container">
     <h1><i class="fas fa-phone"></i> Mis Teléfonos</h1>
 
-    <?php // Mostrar mensajes de feedback ?>
+    <?php // Mostrar mensajes de feedback (leído desde sesión al inicio) ?>
     <?php if ($message): ?>
         <div class="alert alert-<?php echo $message_type === 'error' ? 'danger' : ($message_type === 'success' ? 'success' : 'info'); ?>" role="alert">
-            <?php echo $message; ?>
+            <?php echo htmlspecialchars($message); // Usar htmlspecialchars aquí también ?>
         </div>
     <?php endif; ?>
 
-    <?php // Mostrar QR si está en la sesión ?>
-    <?php foreach ($_SESSION['show_qr'] ?? [] as $phone => $qrCodeValue): ?>
-        <div class="card mb-3">
-            <div class="card-body text-center">
-                <h5 class="card-title">Escanea QR para <?php echo htmlspecialchars($phone); ?></h5>
-                <img src="<?php echo $qrCodeValue; ?>" alt="QR Code para <?php echo htmlspecialchars($phone); ?>" style="max-width: 200px; height: auto;">
-            </div>
-        </div>
-        <?php unset($_SESSION['show_qr'][$phone]); // Limpiar después de mostrar ?>
-    <?php endforeach; ?>
+    <?php // ¡¡ SE ELIMINA EL BUCLE DE QR SUPERIOR !! ?>
+    <?php /* foreach ($_SESSION['show_qr'] ?? [] as $phone => $qrCodeValue): ... endforeach; */ ?>
 
     <?php // Botón para agregar nuevo número ?>
     <button id="add-phone" class="btn btn-primary mb-3" onclick="loadContent('pages/registrar_telefono.php')"><i class="fas fa-plus"></i> Agregar Nuevo Número</button><p></p>
 
     <?php // Lista de números existentes ?>
-    <div class="phone-list row"> <?php // Usar row para layout de cards ?>
+    <div class="phone-list row">
         <?php if (empty($numeros)): ?>
             <div class="col-12">
                 <p>Aún no has agregado ningún número.</p>
             </div>
         <?php else: ?>
-            <?php foreach ($numeros as $numero): ?>
-                <div class="col-md-6 col-lg-4 mb-3"> <?php // Layout responsivo de cards ?>
-                    <div class="card phone-card h-100"> <?php // h-100 para igualar altura ?>
+            <?php foreach ($numeros as $numero_data): // Renombrar variable para claridad ?>
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card phone-card h-100">
                         <div class="card-body">
-                            <class="card-title">Número: <?php echo htmlspecialchars($numero['numero']); ?></class>
+                            <?php ?>
+                            <h4 class="card-title">Número: <?php echo htmlspecialchars($numero_data['numero']); ?></h4>
                             <p class="card-text mb-1">
                                 <strong>Token:</strong><br/>
-                                <span class="token-value" style="word-break: break-all; cursor: pointer;" title="Click para ver completo/ocultar"><?php echo htmlspecialchars($numero['token']); ?></span>
+                                <span class="token-value" style="word-break: break-all; cursor: pointer;" title="Click para ver completo/ocultar"><?php echo htmlspecialchars($numero_data['token'] ?? 'N/A'); ?></span>
                             </p>
                             <p class="card-text">
                                 <strong>Estado:</strong><br/>
                                 <span class="status-text badge bg-<?php
-                                    switch ($numero['estado']) {
+                                        switch ($numero_data['estado']) {
                                         case 'conectado': echo 'success'; break;
                                         case 'desconectado': echo 'secondary'; break;
                                         case 'pendiente': echo 'warning text-dark'; break;
@@ -238,38 +260,66 @@ try {
                                     }
                                 ?>">
                                     <?php
-                                        switch ($numero['estado']) {
+                                            switch ($numero_data['estado']) {
                                             case 'conectado': echo 'Conectado'; break;
                                             case 'desconectado': echo 'Desconectado'; break;
                                             case 'pendiente': echo 'Pendiente QR'; break;
                                             case 'error_vinculacion': echo 'Error Vínculo'; break;
-                                            default: echo htmlspecialchars(ucfirst($numero['estado']));
+                                            default: echo htmlspecialchars(ucfirst($numero_data['estado']));
                                         }
                                     ?>
                                 </span>
                             </p>
 
-                            <?php // Botón Conectar: si está desconectado o hubo error ?>
-                            <?php if ($numero['estado'] === 'desconectado' || $numero['estado'] === 'error_vinculacion'): ?>
+                            <?php
+                            // --- INICIO: MOSTRAR QR CONDICIONALMENTE DENTRO DE LA CARD ---
+                            $current_phone = $numero_data['numero']; // Obtener número actual
+                            if (isset($_SESSION['show_qr'][$current_phone])) {
+                                $qrCodeValue = $_SESSION['show_qr'][$current_phone];
+                                // Limpiar inmediatamente para mostrar solo una vez
+                                unset($_SESSION['show_qr'][$current_phone]);
+                                error_log("Mostrando QR para $current_phone dentro de su card.");
+
+                                // Asegurar formato Data URI (redundante si se hizo en POST, pero seguro)
+                                if (!str_starts_with($qrCodeValue, 'data:image')) {
+                                    $qrCodeValue = 'data:image/png;base64,' . $qrCodeValue;
+                                }
+                            ?>
+                                <div class="text-center my-3 p-2" style="border: 2px dashed #ffc107; background-color: #fff3cd; border-radius: 5px;">
+                                    <h6 class="text-dark mb-1">¡Escanea Ahora!</h6>
+                                    <img src="<?php echo $qrCodeValue; ?>" alt="QR Code para <?php echo htmlspecialchars($current_phone); ?>" style="max-width: 180px; height: auto; display: block; margin: 5px auto;">
+                                    <small class="text-muted d-block mt-1">Este código expirará.</small>
+                                </div>
+                            <?php
+                            } // Fin if (isset($_SESSION['show_qr']))
+                            // --- FIN: MOSTRAR QR CONDICIONALMENTE ---
+                            ?>
+
+                            <?php // --- Botones Condicionales --- ?>
+                            <?php if ($numero_data['estado'] === 'desconectado' || $numero_data['estado'] === 'error_vinculacion'): ?>
                                 <button class="btn btn-success btn-sm connect-btn me-2"
-                                        data-phone-number="<?php echo htmlspecialchars($numero['numero']); ?>"
-                                        data-app="whatsapp">
+                                        data-phone-number="<?php echo htmlspecialchars($numero_data['numero']); ?>">
                                     <i class="fas fa-link"></i> Conectar
                                 </button>
                             <?php endif; ?>
 
-                            <?php // Botón Cerrar Sesión: si está conectado o pendiente (para cancelar) ?>
-                            <?php if ($numero['estado'] === 'conectado' || $numero['estado'] === 'pendiente'): ?>
+                            <?php // Muestra "Cerrar Sesión" si está conectado O pendiente ?>
+                            <?php if ($numero_data['estado'] === 'conectado' || $numero_data['estado'] === 'pendiente'): ?>
                                 <button class="btn btn-danger btn-sm delete-btn"
-                                        data-phone-number="<?php echo htmlspecialchars($numero['numero']); ?>"
-                                        data-app="whatsapp"> <?php // No necesita phone-id ?>
+                                        data-phone-number="<?php echo htmlspecialchars($numero_data['numero']); ?>">
                                     <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                                 </button>
                             <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
+
+                        </div> <!-- Fin card-body -->
+                    </div> <!-- Fin card -->
+                </div> <!-- Fin col -->
             <?php endforeach; ?>
         <?php endif; ?>
-    </div> <?php // Fin de phone-list ?>
-</div>
+    </div> <!-- Fin de phone-list -->
+</div> <!-- Fin content-container -->
+
+<?php
+// Log para verificar el estado final de la sesión QR al final de la carga de la página
+error_log("MIS_TELEFONOS (GET End): Estado final de \$_SESSION['show_qr']: " . print_r($_SESSION['show_qr'] ?? [], true));
+?>
