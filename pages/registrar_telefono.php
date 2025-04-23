@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $responseData = json_decode($response, true);
 
         if (!$responseData || !isset($responseData['success'])) {
-            throw new Exception('Error al procesar la respuesta del servidor.');
+            throw new Exception('<div class="alert alert-danger">Error al procesar la respuesta del servidor.</div>');
         }
 
         if ($responseData['success']) {
@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div id="registerPhoneResponse"></div>
     <form id="registerPhoneForm">
         <p></p>
-       
+    
         <div class="form-group">
             <label for="numero">Número de Teléfono:</label>
             <input type="text" id="numero" name="numero" class="form-control" placeholder="Número de teléfono con el prefijo del país: 584123456789" required>

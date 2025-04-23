@@ -55,7 +55,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
                 this.disabled = true;
+                const loadingIndicator = document.createElement('img');
+                loadingIndicator.src = 'img/loading.gif';
+                loadingIndicator.alt = 'Cargando...';
+                loadingIndicator.width = 20;
+                loadingIndicator.style.marginLeft = '10px'; // Add some spacing
                 this.textContent = 'Conectando...';
+                this.parentNode.appendChild(loadingIndicator);
 
                 try {
                     const response = await fetch('pages/mis_telefonos.php', {

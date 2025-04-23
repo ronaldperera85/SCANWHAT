@@ -720,3 +720,66 @@ body.dark-theme input:checked + .slider {
   margin: 5px 0 0 0;
   font-size: 1.1rem;
 }
+
+/* --- Estilos REVISADOS para el Cuadro del Código QR --- */
+
+/* Estilos BASE (Radio y transición - aplicables a ambos) */
+.qr-code-display {
+  border-radius: 5px;
+  transition: background-color 0.3s ease, border 0.3s ease, color 0.3s ease;
+  /* Clases Bootstrap como text-center, my-3, p-2 se mantienen en el HTML */
+}
+
+/* --- TEMA CLARO (Default) --- */
+/* Selector un poco más específico (asume que está dentro de .card dentro de .content-container) */
+/* Si no está en .card, puedes quitar esa parte del selector */
+div.content-container div.card div.qr-code-display {
+border: 2px dashed #7c5dfa;      /* Borde COMPLETO claro */
+background-color: #9585e7;   /* Fondo claro */
+color: #ffffff;               /* Texto blanco por defecto para este contenedor */
+}
+/* Si no está en .card, usa esta regla también o en lugar de la de arriba */
+div.content-container div.qr-code-display {
+border: 2px dashed #7c5dfa;
+background-color: #9585e7;
+color: #ffffff;
+}
+
+/* Estilos específicos para texto en tema claro DENTRO del QR display */
+.qr-code-display .qr-title {
+  color: #ffffff !important; /* Forzar blanco si es necesario */
+}
+.qr-code-display .qr-subtitle {
+  color: rgba(255, 255, 255, 0.85) !important; /* Forzar blanco tenue */
+}
+
+/* --- TEMA OSCURO --- */
+/* Selector un poco más específico */
+body.dark-theme div.content-container div.card div.qr-code-display {
+border: 2px dashed #1f2545;      /* Borde COMPLETO oscuro */
+background-color: #1a1a2e;   /* Fondo oscuro */
+color: #dddddd;              /* Texto claro por defecto para este contenedor */
+}
+/* Si no está en .card, usa esta regla también o en lugar de la de arriba */
+body.dark-theme div.content-container div.qr-code-display {
+border: 2px dashed #1f2545;
+background-color: #1a1a2e;
+color: #dddddd;
+}
+
+/* Estilos específicos para texto en tema oscuro DENTRO del QR display */
+body.dark-theme .qr-code-display .qr-title {
+  color: #dddddd !important; /* Forzar texto claro */
+}
+body.dark-theme .qr-code-display .qr-subtitle {
+   color: #8a93a2 !important; /* Forzar color muted oscuro */
+   /* Si text-muted ya tiene !important en el tema oscuro, quítalo de aquí */
+}
+
+/* Estilo de la imagen (puede ir aquí o mantenerse inline) */
+.qr-code-display .qr-image {
+  max-width: 180px;
+  height: auto;
+  display: block;
+  margin: 5px auto;
+}

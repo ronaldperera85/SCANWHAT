@@ -285,11 +285,11 @@ try {
                                     $qrCodeValue = 'data:image/png;base64,' . $qrCodeValue;
                                 }
                             ?>
-                                <div class="text-center my-3 p-2" style="border: 2px dashed #ffc107; background-color: #fff3cd; border-radius: 5px;">
-                                    <h6 class="text-dark mb-1">¡Escanea Ahora!</h6>
-                                    <img src="<?php echo $qrCodeValue; ?>" alt="QR Code para <?php echo htmlspecialchars($current_phone); ?>" style="max-width: 180px; height: auto; display: block; margin: 5px auto;">
-                                    <small class="text-muted d-block mt-1">Este código expirará.</small>
-                                </div>
+<div class="qr-code-display text-center my-3 p-2">
+    <h4 class="qr-title mb-1">¡Escanea Ahora!</h4>
+    <img src="<?php echo $qrCodeValue; ?>" alt="QR Code para <?php echo htmlspecialchars($current_phone); ?>" class="qr-image" style="max-width: 180px; height: auto; display: block; margin: 5px 0;">
+    <h4 class="qr-subtitle text-muted d-block mt-1">Antes que el código expire.</h4>
+</div>
                             <?php
                             } // Fin if (isset($_SESSION['show_qr']))
                             // --- FIN: MOSTRAR QR CONDICIONALMENTE ---
