@@ -1,0 +1,17 @@
+# Archivos de configuración de entorno
+.env
+
+# Archivos de log
+*.log
+logs/
+
+# Dependencias de Composer (si usas PHP Composer)
+/vendor/
+
+# Archivos de configuración de IDEs
+.vscode/
+.idea/
+
+# Archivos de sistema operativo
+.DS_Store
+Thumbs.db
