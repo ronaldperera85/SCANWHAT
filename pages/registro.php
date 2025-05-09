@@ -45,8 +45,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Usuario</title>
+    <title>SCANWHAT</title>
+    <link rel="icon" href="../img/small.png" type="image/x-icon">
     <link rel="stylesheet" href="../css/style.css">
+        <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="SCANWHAT" />
+    <meta property="og:description" content="¡Conecta al Instante!" />
+    <meta property="og:image" content="https://scanwhat.icarosoft.com/img/logo.png" />
+    <meta property="og:url" content="https://scanwhat.icarosoft.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="SCANWHAT" />
+    <meta property="og:locale" content="es_ES" />
 </head>
 <body>
 
