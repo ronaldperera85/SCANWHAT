@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Credenciales correctas, iniciar sesión
             $_SESSION['user_id'] = $usuario['id'];
             $_SESSION['user_name'] = $usuario['nombre'];
-            header("Location: ../index.php"); // Redirigir al panel de usuario
+            header("Location: /scanwhat/menu"); // Ajustado para la URL amigable
             exit;
         } else {
             $error = "Credenciales incorrectas.";
@@ -34,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCANWHAT</title>
-    <link rel="icon" href="../img/small.png" type="image/x-icon">
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="/scanwhat/img/small.png" type="image/x-icon">
+    <link rel="stylesheet" href="/scanwhat/css/style.css">
         <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="SCANWHAT" />
     <meta property="og:description" content="¡Conecta al Instante!" />
@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="login-container">
         <div class="card">
             <div class="logo-container">
-                <img src="../img/logo.png" alt="Logo de ScanWhat">
+                <img src="/scanwhat/img/logo.png" alt="Logo de ScanWhat">
             </div>
             <h2>Iniciar Sesión</h2>
             <?php if ($error): ?>
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="submit" class="btn btn-primary">Entrar</button>
             </form>
             <div class="register-link">
-                ¿No tienes una cuenta? <a href="registro.php">Regístrate aquí</a>
+                ¿No tienes una cuenta? <a href="/scanwhat/registro">Regístrate aquí</a> <!-- ajustado para la URL amigable -->
             </div>
         </div>
     </div>

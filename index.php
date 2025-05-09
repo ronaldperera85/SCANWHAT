@@ -3,7 +3,7 @@ session_start();
 
 // Verificar si el usuario está autenticado
 if (!isset($_SESSION['user_id'])) {
-    header("Location: pages/login.php");
+    header("Location: /scanwhat/login"); // Ajustado para la URL amigable
     exit;
 }
 
@@ -80,7 +80,7 @@ $faviconPath = "img/small.png";
             <div class="separator"></div>
             <div class="logout">
                 <span id="logout-link">
-                    <i class="fas fa-sign-out-alt" id="logout-icon"></i><a href="pages/logout.php">Cerrar sesión</a>
+                <i class="fas fa-sign-out-alt" id="logout-icon"></i><a href="/scanwhat/logout">Cerrar sesión</a>
                 </span>
             </div>
         </div>

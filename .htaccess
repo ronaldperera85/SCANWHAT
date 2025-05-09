@@ -1,0 +1,90 @@
+Options +FollowSymLinks -MultiViews
+RewriteEngine On
+
+# Especifica la base de tu proyecto si está en una subcarpeta
+RewriteBase /scanwhat/
+
+# Redirigir a HTTPS (opcional pero recomendado)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Eliminar la barra diagonal final de las URL si no es un directorio real
+# RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteCond %{REQUEST_URI} (.+)/$
+# RewriteRule ^ %1 [L,R=301]
+
+# --- REGLAS PARA 'menu' (antes 'index') ---
+# El archivo físico sigue siendo index.php, pero la URL amigable será /scanwhat/menu
+RewriteCond %{THE_REQUEST} \s/scanwhat/index\.php[\s?] [NC]
+RewriteRule ^index\.php$ menu [R=301,L,NE]
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{DOCUMENT_ROOT}/scanwhat/index.php -f
+RewriteRule ^menu/?$ index.php [L,NC]
+
+
+# --- REGLAS PARA login, registro y logout (URL amigable: /scanwhat/login, /scanwhat/registro, /scanwhat/logout) ---
+
+# 1. Reescritura Interna: /scanwhat/login -> pages/login.php
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{DOCUMENT_ROOT}/scanwhat/pages/login.php -f
+RewriteRule ^login/?$ pages/login.php [L,NC]
+
+# 2. Reescritura Interna: /scanwhat/registro -> pages/registro.php
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{DOCUMENT_ROOT}/scanwhat/pages/registro.php -f
+RewriteRule ^registro/?$ pages/registro.php [L,NC]
+
+# NUEVO: Reescritura Interna: /scanwhat/logout -> pages/logout.php
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{DOCUMENT_ROOT}/scanwhat/pages/logout.php -f
+RewriteRule ^logout/?$ pages/logout.php [L,NC]
+
+
+# 3. Redirección Externa: /scanwhat/pages/login.php -> /scanwhat/login
+RewriteCond %{THE_REQUEST} \s/scanwhat/pages/login\.php[\s?] [NC]
+RewriteRule ^pages/login\.php$ login [R=301,L,NE]
+
+# 4. Redirección Externa: /scanwhat/pages/registro.php -> /scanwhat/registro
+RewriteCond %{THE_REQUEST} \s/scanwhat/pages/registro\.php[\s?] [NC]
+RewriteRule ^pages/registro\.php$ registro [R=301,L,NE]
+
+# NUEVO: Redirección Externa: /scanwhat/pages/logout.php -> /scanwhat/logout
+RewriteCond %{THE_REQUEST} \s/scanwhat/pages/logout\.php[\s?] [NC]
+RewriteRule ^pages/logout\.php$ logout [R=301,L,NE]
+
+
+# --- REGLAS PARA OTROS ARCHIVOS DENTRO DE 'pages/' (si necesitas URLs como /scanwhat/pages/results/...) ---
+# Estas reglas seguirían usando el prefijo 'pages/' en la URL amigable si así lo deseas.
+# Si quieres que results TAMBIÉN esté en la raíz (/scanwhat/results/), necesitaría reglas similares a login/registro.
+
+# Ejemplo para /scanwhat/pages/results/dominio.com
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^pages/results/(.+)$ pages/results.php?url=$1 [L,QSA,NC]
+
+# Ejemplo para quitar .php de otros archivos en 'pages/' (ej: /scanwhat/pages/otroarchivo)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{DOCUMENT_ROOT}/scanwhat/pages/$1.php -f
+RewriteRule ^pages/([^\.]+)$ pages/$1.php [L,NC] # Coincide con "pages/nombre"
+
+# Redirección 301 para .php en 'pages/' (genérica para los que no son login/registro/logout)
+RewriteCond %{THE_REQUEST} \s/scanwhat/pages/([^\s<]+)\.php [NC]
+RewriteCond %{REQUEST_URI} !^/scanwhat/pages/(login|registro|logout)\.php$ [NC] # No aplicar a login/registro/logout.php
+RewriteRule ^pages/([^/]+)\.php$ pages/$1 [R=301,L,NE]
+
+
+# --- REGLA GENERAL FINAL (Catch-all si NADA de lo anterior coincide) ---
+# Para URLs como /scanwhat/dashboard, /scanwhat/mi_cuenta
+# que deberían ser manejadas por tu index.php (accedido vía /scanwhat/menu).
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+# Excluir 'menu', 'login', 'registro', 'logout', 'pages/' (si aún tiene reglas), y assets
+RewriteCond %{REQUEST_URI} !^/scanwhat/(menu|login|registro|logout|pages/|img/|css/|js/|db/) [NC] # CAMBIO: Añadido 'logout'
+RewriteRule ^(.*)$ index.php?_route=$1 [L,QSA] # Sigue apuntando a index.php (el archivo físico)

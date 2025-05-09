@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             // Redireccionar al usuario a login.php
-            header("Location: login.php");
+            header("Location: /scanwhat/login"); // Ajustado para la URL amigable
             exit(); // Asegura que el script se detenga después de la redirección
             // $success = "Usuario registrado exitosamente. <a href='login.php'>Inicia sesión</a>."; // Ya no es necesario
         }
@@ -46,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCANWHAT</title>
-    <link rel="icon" href="../img/small.png" type="image/x-icon">
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="/scanwhat/img/small.png" type="image/x-icon">
+    <link rel="stylesheet" href="/scanwhat/css/style.css">
         <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="SCANWHAT" />
     <meta property="og:description" content="¡Conecta al Instante!" />
@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit" class="btn btn-primary">Registrarse</button>
         </form>
         <div class="register-link">
-            ¿Ya tienes una cuenta? <a href="login.php">Inicia sesión aquí</a>
+            ¿Ya tienes una cuenta? <a href="/scanwhat/login">Inicia sesión aquí</a> <!-- ajustado para la URL amigable -->
         </div>
     </div>
 </div>
