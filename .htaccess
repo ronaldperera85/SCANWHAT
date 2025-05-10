@@ -1,11 +1,22 @@
 RewriteEngine On
 RewriteBase /
 
-# Redirección Externa: /pages/login.php -> /login
+# --- REGLA PARA EL PROCESO DE RENOVACIÓN DE SSL (ACME Challenge) ---
+RewriteRule ^\.well-known/acme-challenge/ - [L]
+
+# --- REGLAS PARA 'menu' (PÁGINA PRINCIPAL) ---
+RewriteCond %{THE_REQUEST} \s/index\.php[\s?] [NC]
+RewriteRule ^index\.php$ menu [R=301,L,NE]
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{DOCUMENT_ROOT}/index.php -f
+RewriteRule ^menu/?$ index.php [L,NC]
+
+# --- REGLAS PARA login ---
 RewriteCond %{THE_REQUEST} \s/pages/login\.php[\s?] [NC]
 RewriteRule ^pages/login\.php$ login [R=301,L,NE]
 
-# REGLAS PARA login (SOLO REESCRITURA INTERNA POR AHORA)
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{DOCUMENT_ROOT}/pages/login.php -f
