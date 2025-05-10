@@ -1,4 +1,4 @@
-Options +FollowSymLinks -MultiViews
+# Options +FollowSymLinks -MultiViews # Comentado temporalmente
 RewriteEngine On
 RewriteBase /
 
@@ -6,12 +6,10 @@ RewriteBase /
 RewriteRule ^\.well-known/acme-challenge/ - [L]
 
 # --- REGLAS PARA 'menu' (PÁGINA PRINCIPAL - ANTES index.php) ---
-# 1. Redirección Externa: Si alguien escribe /index.php, cambiarlo a /menu
 RewriteCond %{THE_REQUEST} \s/index\.php[\s?] [NC]
 RewriteRule ^index\.php$ menu [R=301,L,NE]
 
-# 2. Reescritura Interna: Si se solicita /menu, servir internamente index.php
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{DOCUMENT_ROOT}/index.php -f # %{DOCUMENT_ROOT} es /var/www/html/SCANWHAT/
+RewriteCond %{DOCUMENT_ROOT}/index.php -f
 RewriteRule ^menu/?$ index.php [L,NC]
