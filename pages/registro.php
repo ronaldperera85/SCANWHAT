@@ -46,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCANWHAT</title>
-    <link rel="icon" href="/scanwhat/img/small.png" type="image/x-icon">
-    <link rel="stylesheet" href="/scanwhat/css/style.css">
+    <link rel="icon" href="/img/small.png" type="image/x-icon">
+    <link rel="stylesheet" href="/css/style.css">
         <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="SCANWHAT" />
     <meta property="og:description" content="¡Conecta al Instante!" />

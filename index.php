@@ -80,7 +80,7 @@ $faviconPath = "img/small.png";
             <div class="separator"></div>
             <div class="logout">
                 <span id="logout-link">
-                <i class="fas fa-sign-out-alt" id="logout-icon"></i><a href="/logout">Cerrar sesión</a>
+                <i class="fas fa-sign-out-alt" id="logout-icon"></i><a href="/logout">Cerrar sesión</a> <!-- ajustado para la URL amigable -->
                 </span>
             </div>
         </div>
