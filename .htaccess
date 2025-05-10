@@ -30,3 +30,14 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{DOCUMENT_ROOT}/pages/registro.php -f
 RewriteRule ^registro/?$ pages/registro.php [L,NC]
+
+# --- REGLAS PARA logout ---
+# 1. Redirección Externa: /pages/logout.php -> /logout
+RewriteCond %{THE_REQUEST} \s/pages/logout\.php[\s?] [NC]
+RewriteRule ^pages/logout\.php$ logout [R=301,L,NE]
+
+# 2. Reescritura Interna: /logout -> pages/logout.php
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{DOCUMENT_ROOT}/pages/logout.php -f # Asegúrate que este archivo existe
+RewriteRule ^logout/?$ pages/logout.php [L,NC]
