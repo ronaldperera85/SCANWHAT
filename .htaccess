@@ -1,6 +1,10 @@
 RewriteEngine On
 RewriteBase /
 
+# Redirección Externa: /pages/login.php -> /login
+RewriteCond %{THE_REQUEST} \s/pages/login\.php[\s?] [NC]
+RewriteRule ^pages/login\.php$ login [R=301,L,NE]
+
 # REGLAS PARA login (SOLO REESCRITURA INTERNA POR AHORA)
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
