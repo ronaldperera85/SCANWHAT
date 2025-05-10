@@ -31,13 +31,35 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{DOCUMENT_ROOT}/pages/registro.php -f
 RewriteRule ^registro/?$ pages/registro.php [L,NC]
 
-# --- REGLAS PARA logout ---
-# 1. Redirección Externa: /pages/logout.php -> /logout
-RewriteCond %{THE_REQUEST} \s/pages/logout\.php[\s?] [NC]
-RewriteRule ^pages/logout\.php$ logout [R=301,L,NE]
+RewriteEngine On
+RewriteBase /
 
-# 2. Reescritura Interna: /logout -> pages/logout.php
+# --- REGLA PARA EL PROCESO DE RENOVACIÓN DE SSL (ACME Challenge) ---
+RewriteRule ^\.well-known/acme-challenge/ - [L]
+
+# --- REGLAS PARA 'menu' (PÁGINA PRINCIPAL) ---
+RewriteCond %{THE_REQUEST} \s/index\.php[\s?] [NC]
+RewriteRule ^index\.php$ menu [R=301,L,NE]
+
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{DOCUMENT_ROOT}/pages/logout.php -f # Asegúrate que este archivo existe
-RewriteRule ^logout/?$ pages/logout.php [L,NC]
+RewriteCond %{DOCUMENT_ROOT}/index.php -f
+RewriteRule ^menu/?$ index.php [L,NC]
+
+# --- REGLAS PARA login ---
+RewriteCond %{THE_REQUEST} \s/pages/login\.php[\s?] [NC]
+RewriteRule ^pages/login\.php$ login [R=301,L,NE]
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{DOCUMENT_ROOT}/pages/login.php -f
+RewriteRule ^login/?$ pages/login.php [L,NC]
+
+# --- REGLAS PARA registro ---
+RewriteCond %{THE_REQUEST} \s/pages/registro\.php[\s?] [NC]
+RewriteRule ^pages/registro\.php$ registro [R=301,L,NE]
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{DOCUMENT_ROOT}/pages/registro.php -f
+RewriteRule ^registro/?$ pages/registro.php [L,NC]
