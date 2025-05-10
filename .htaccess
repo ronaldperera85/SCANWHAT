@@ -1,94 +1,32 @@
-Options +FollowSymLinks -MultiViews # Si esto da error 500, coméntalo aquí y ponlo en scanwhat-ssl.conf
 RewriteEngine On
 RewriteBase /
 
 # --- REGLA PARA EL PROCESO DE RENOVACIÓN DE SSL (ACME Challenge) ---
-# Importante que esté al principio para que no sea afectado por otras reglas.
 RewriteRule ^\.well-known/acme-challenge/ - [L]
 
-
 # --- REGLAS PARA 'menu' (PÁGINA PRINCIPAL) ---
-# El archivo físico sigue siendo index.php, pero la URL amigable será /menu
-
-# 1. Redirección Externa: Si alguien escribe /index.php, cambiarlo a /menu
 RewriteCond %{THE_REQUEST} \s/index\.php[\s?] [NC]
 RewriteRule ^index\.php$ menu [R=301,L,NE]
 
-# 2. Reescritura Interna: Si se solicita /menu, servir internamente index.php
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{DOCUMENT_ROOT}/index.php -f
 RewriteRule ^menu/?$ index.php [L,NC]
 
-
 # --- REGLAS PARA login ---
-# URL amigable: /login
-
-# 1. Redirección Externa: /pages/login.php -> /login
 RewriteCond %{THE_REQUEST} \s/pages/login\.php[\s?] [NC]
 RewriteRule ^pages/login\.php$ login [R=301,L,NE]
 
-# 2. Reescritura Interna: /login -> pages/login.php
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{DOCUMENT_ROOT}/pages/login.php -f
 RewriteRule ^login/?$ pages/login.php [L,NC]
 
-
 # --- REGLAS PARA registro ---
-# URL amigable: /registro
-
-# 1. Redirección Externa: /pages/registro.php -> /registro
 RewriteCond %{THE_REQUEST} \s/pages/registro\.php[\s?] [NC]
 RewriteRule ^pages/registro\.php$ registro [R=301,L,NE]
 
-# 2. Reescritura Interna: /registro -> pages/registro.php
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{DOCUMENT_ROOT}/pages/registro.php -f
 RewriteRule ^registro/?$ pages/registro.php [L,NC]
-
-
-# --- REGLAS PARA logout ---
-# URL amigable: /logout
-
-# 1. Redirección Externa: /pages/logout.php -> /logout
-RewriteCond %{THE_REQUEST} \s/pages/logout\.php[\s?] [NC]
-RewriteRule ^pages/logout\.php$ logout [R=301,L,NE]
-
-# 2. Reescritura Interna: /logout -> pages/logout.php
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{DOCUMENT_ROOT}/pages/logout.php -f
-RewriteRule ^logout/?$ pages/logout.php [L,NC]
-
-
-# --- REGLAS PARA OTROS ARCHIVOS DENTRO DE 'pages/' (ej. /pages/results/...) ---
-# Estas URLs amigables seguirán comenzando con /pages/
-
-# Ejemplo para /pages/results/dominio.com (reescritura interna)
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^pages/results/(.+)$ pages/results.php?url=$1 [L,QSA,NC]
-
-# Ejemplo para quitar .php de otros archivos en 'pages/' (ej: /pages/otroarchivo -> pages/otroarchivo.php)
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{DOCUMENT_ROOT}/pages/$1.php -f # $1 es 'otroarchivo'
-RewriteRule ^pages/([^\.]+)$ pages/$1.php [L,NC]
-
-# Redirección 301 para .php en 'pages/' (genérica para las que no son login/registro/logout/results)
-RewriteCond %{THE_REQUEST} \s/pages/([^\s<]+?)\.php[\s?] [NC] # ([^\s<]+?) para capturar el nombre
-RewriteCond %{REQUEST_URI} !^/pages/(login|registro|logout|results)\.php$ [NC] # No aplicar a las ya manejadas específicamente
-RewriteRule ^pages/([^/]+?)\.php$ pages/$1 [R=301,L,NE] # $1 es el nombre del archivo sin .php
-
-
-# --- REGLA GENERAL FINAL (Catch-all si NADA de lo anterior coincide) ---
-# Para URLs como /dashboard, /mi_cuenta que deberían ser manejadas por tu index.php (accedido vía /menu).
-# Estas son las URLs que tu JavaScript carga dinámicamente en el #content-placeholder.
-
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-# Excluir las rutas ya manejadas explícitamente, directorios de assets y el ACME challenge.
-RewriteCond %{REQUEST_URI} !^/(menu|login|registro|logout|pages/|\.well-known/|img/|css/|js/|db/|fonts/) [NC]
-RewriteRule ^(.*)$ index.php?_route=$1 [L,QSA] # Pasa la ruta a index.php
