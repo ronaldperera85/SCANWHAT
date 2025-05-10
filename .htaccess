@@ -1,4 +1,4 @@
-Options +FollowSymLinks -MultiViews # Intenta añadir esta línea de nuevo. Si da 500, quítala y ponla en scanwhat-ssl.conf
+#Options +FollowSymLinks -MultiViews # Intenta añadir esta línea de nuevo. Si da 500, quítala y ponla en scanwhat-ssl.conf
 RewriteEngine On
 RewriteBase /
 
