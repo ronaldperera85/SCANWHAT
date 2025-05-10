@@ -23,7 +23,6 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{DOCUMENT_ROOT}/scanwhat/index.php -f
 RewriteRule ^menu/?$ index.php [L,NC]
 
-
 # --- REGLAS PARA login, registro y logout (URL amigable: /scanwhat/login, /scanwhat/registro, /scanwhat/logout) ---
 
 # 1. Reescritura Interna: /scanwhat/login -> pages/login.php
