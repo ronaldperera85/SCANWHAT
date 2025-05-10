@@ -3,7 +3,7 @@ session_start();
 
 // Verificar si el usuario está autenticado
 if (!isset($_SESSION['user_id'])) {
-    header("Location: /scanwhat/login"); // Ajustado para la URL amigable
+    header("Location: /login"); // Ajustado para la URL amigable
     exit;
 }
 

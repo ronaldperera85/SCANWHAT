@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Credenciales correctas, iniciar sesión
             $_SESSION['user_id'] = $usuario['id'];
             $_SESSION['user_name'] = $usuario['nombre'];
-            header("Location: /scanwhat/menu"); // Ajustado para la URL amigable
+            header("Location: /menu"); // Ajustado para la URL amigable
             exit;
         } else {
             $error = "Credenciales incorrectas.";
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="submit" class="btn btn-primary">Entrar</button>
             </form>
             <div class="register-link">
-                ¿No tienes una cuenta? <a href="/scanwhat/registro">Regístrate aquí</a> <!-- ajustado para la URL amigable -->
+                ¿No tienes una cuenta? <a href="/registro">Regístrate aquí</a> <!-- ajustado para la URL amigable -->
             </div>
         </div>
     </div>

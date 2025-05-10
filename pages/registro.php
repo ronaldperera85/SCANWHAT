@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             // Redireccionar al usuario a login.php
-            header("Location: /scanwhat/login"); // Ajustado para la URL amigable
+            header("Location: /login"); // Ajustado para la URL amigable
             exit(); // Asegura que el script se detenga después de la redirección
             // $success = "Usuario registrado exitosamente. <a href='login.php'>Inicia sesión</a>."; // Ya no es necesario
         }
@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit" class="btn btn-primary">Registrarse</button>
         </form>
         <div class="register-link">
-            ¿Ya tienes una cuenta? <a href="/scanwhat/login">Inicia sesión aquí</a> <!-- ajustado para la URL amigable -->
+            ¿Ya tienes una cuenta? <a href="/login">Inicia sesión aquí</a> <!-- ajustado para la URL amigable -->
         </div>
     </div>
 </div>
