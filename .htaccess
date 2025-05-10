@@ -1,25 +1,16 @@
-# Options +FollowSymLinks -MultiViews # Mantén esto comentado por ahora
 RewriteEngine On
 RewriteBase /
 
+# --- REGLA PARA EL PROCESO DE RENOVACIÓN DE SSL (ACME Challenge) ---
 RewriteRule ^\.well-known/acme-challenge/ - [L]
 
 # --- REGLAS PARA 'menu' (PÁGINA PRINCIPAL) ---
+# 1. Redirección Externa: /index.php -> /menu
 RewriteCond %{THE_REQUEST} \s/index\.php[\s?] [NC]
 RewriteRule ^index\.php$ menu [R=301,L,NE]
 
+# 2. Reescritura Interna: /menu -> index.php
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{DOCUMENT_ROOT}/index.php -f
 RewriteRule ^menu/?$ index.php [L,NC]
-
-# --- REGLAS PARA login (DESCOMENTADAS AHORA) ---
-# 1. Redirección Externa: /pages/login.php -> /login
-RewriteCond %{THE_REQUEST} \s/pages/login\.php[\s?] [NC]
-RewriteRule ^pages/login\.php$ login [R=301,L,NE]
-
-# 2. Reescritura Interna: /login -> pages/login.php
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{DOCUMENT_ROOT}/pages/login.php -f # Asegúrate que /var/www/html/SCANWHAT/pages/login.php existe
-RewriteRule ^login/?$ pages/login.php [L,NC]
