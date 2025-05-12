@@ -28,7 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([
                 'nombre' => $nombre,
                 'email' => $email,
-                'password' => $hashed_password,
+                // --- INICIO DE LA MODIFICACIÓN registro.php & login.php ---
+                //'password' => $hashed_password, // Cambiado a 'password' para mantener la consistencia
+                'password' => $password,
             ]);
 
             // Redireccionar al usuario a login.php

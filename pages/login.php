@@ -16,7 +16,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute(['email' => $email]);
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($usuario && password_verify($password, $usuario['password'])) {
+        // --- INICIO DE LA MODIFICACIÓN registro.php & login.php ---
+        // Antes era: if ($usuario && password_verify($password, $usuario['password']))
+
+        // AHORA es: Compara DIRECTAMENTE la contraseña ingresada ($password)
+        // con la contraseña guardada en la base de datos ($usuario['password'])
+        if ($usuario && $password === $usuario['password']) {
+        // --- FIN DE LA MODIFICACIÓN ---
+
             // Credenciales correctas, iniciar sesión
             $_SESSION['user_id'] = $usuario['id'];
             $_SESSION['user_name'] = $usuario['nombre'];
