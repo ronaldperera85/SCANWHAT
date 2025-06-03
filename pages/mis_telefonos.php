@@ -229,7 +229,8 @@ try {
     <?php /* foreach ($_SESSION['show_qr'] ?? [] as $phone => $qrCodeValue): ... endforeach; */ ?>
 
     <?php // Botón para agregar nuevo número ?>
-    <button id="add-phone" class="btn btn-primary mb-3" onclick="loadContent('pages/registrar_telefono.php')"><i class="fas fa-plus"></i> Agregar Nuevo Número</button><p></p>
+    <button id="add-phone" class="btn btn-primary mb-3"><i class="fas fa-plus"></i> Agregar Nuevo Número</button><p></p>
+    <!--<button id="add-phone" class="btn btn-primary mb-3" onclick="loadContent('pages/registrar_telefono.php')"><i class="fas fa-plus"></i> Agregar Nuevo Número</button><p></p>-->
 
     <?php // Lista de números existentes ?>
     <div class="phone-list row">
