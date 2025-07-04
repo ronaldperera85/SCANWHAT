@@ -205,7 +205,8 @@ if (sendMessageForm) {
                     token: apiToken,
                     uid: waAccount,
                     to: recipientAccount,
-                    text: messageText
+                    text: messageText,
+                    custom_uid: 'dev-test-' + Date.now() // Añadimos el custom_uid requerido
                 })
             });
 

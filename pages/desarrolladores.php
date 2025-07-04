@@ -111,12 +111,14 @@ $apiHelpdeskUrl = $baseUrl . '/api';
 }
 
 .success {
-    color: green;
-    font-weight: bold;
+    color: #155724;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
 }
 
 .error {
-    color: red;
-    font-weight: bold;
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
 }
 </style>
