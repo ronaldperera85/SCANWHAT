@@ -72,3 +72,16 @@ PRIMARY KEY (id) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- Table structure for usuarios
+DROP TABLE IF EXISTS contactos;
+CREATE TABLE contactos (
+id INT NOT NULL AUTO_INCREMENT,
+uid VARCHAR(20) NOT NULL, -- El número de WhatsApp del contacto, ej: 584121234567
+nombre_notificado VARCHAR(255) NULL, -- El nombre que WhatsApp notifica (notifyName)
+pic_url VARCHAR(255) NULL, -- La URL permanente de la foto de perfil
+fecha_primera_interaccion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+fecha_ultima_actualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+PRIMARY KEY (id),
+UNIQUE KEY uid_unique (uid) -- Asegura que cada número exista solo una vez
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
