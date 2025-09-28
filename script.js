@@ -101,21 +101,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         document.querySelectorAll('.delete-btn').forEach(button => {
             button.addEventListener('click', async function () {
-                // const phoneId = this.getAttribute('data-phone-id'); // <<-- ELIMINAR O COMENTAR ESTA LÍNEA
-                const phoneNumber = this.getAttribute('data-phone-number'); // Solo necesitamos el número
-
-                // La comprobación ahora solo necesita phoneNumber
-                if (!phoneNumber) { // <<-- AJUSTAR LA CONDICIÓN
+                const phoneNumber = this.getAttribute('data-phone-number');
+                if (!phoneNumber) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error!',
-                        // Mensaje ligeramente ajustado
                         text: 'No se pudo obtener el número de teléfono para cerrar sesión.',
                     });
                     return;
                 }
-
-                // Confirmación Swal (sin cambios)
                 Swal.fire({
                     title: "¿Estás seguro de que deseas cerrar sesión de este número?",
                     icon: 'warning',
@@ -130,17 +124,15 @@ document.addEventListener('DOMContentLoaded', function () {
                         this.textContent = 'Cerrando Sesión...';
 
                         try {
-                            // Llamada fetch (sin cambios, ya estaba correcta)
                             const disconnectResponse = await fetch('pages/mis_telefonos.php', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                                 body: new URLSearchParams({
                                     'action': 'disconnect_user',
-                                    'phoneNumber': phoneNumber // Solo envía el número
+                                    'phoneNumber': phoneNumber
                                 })
                             });
 
-                            // Manejo de respuesta (sin cambios)
                             if (disconnectResponse.ok) {
                                 loadContent('pages/mis_telefonos.php');
                             } else {
@@ -152,7 +144,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                 });
                             }
                         } catch (error) {
-                            // Manejo de error (sin cambios)
                             console.error("Error de red:", error);
                             Swal.fire({
                                 icon: 'error',
@@ -160,7 +151,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                 text: 'Error de red al cerrar sesión del número.',
                             });
                         } finally {
-                            // Finally block (sin cambios)
                             this.disabled = false;
                             this.textContent = 'Cerrar Sesión';
                         }
@@ -169,62 +159,85 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
         
-               // Evento para envío de mensajes
-                const sendMessageForm = document.getElementById('sendMessageForm');
-if (sendMessageForm) {
-    sendMessageForm.addEventListener('submit', async function (event) {
-        event.preventDefault();
+        // Evento para envío de mensajes
+        const sendMessageForm = document.getElementById('sendMessageForm');
+        if (sendMessageForm) {
+            
+            // =======================================================================
+            // CÓDIGO AÑADIDO: Lógica para autocompletar el token dinámicamente
+            // =======================================================================
+            const waAccountSelect = document.getElementById('waAccountSend');
+            const apiTokenInput = document.getElementById('apiTokenSend');
 
-        // Obtener la URL desde el atributo data-api-send-chat-url del contenedor
-        const apiSendChatUrl = this.closest('.card').dataset.apiSendChatUrl;
+            if (waAccountSelect && apiTokenInput) {
+                // Función para actualizar el token
+                const updateToken = () => {
+                    const selectedOption = waAccountSelect.options[waAccountSelect.selectedIndex];
+                    if (selectedOption) {
+                        apiTokenInput.value = selectedOption.dataset.token || '';
+                    }
+                };
+                
+                // Actualizar el token cuando el usuario cambia la selección
+                waAccountSelect.addEventListener('change', updateToken);
+                
+                // Actualizar el token también al cargar la página para el valor inicial
+                updateToken();
+            }
+            // =======================================================================
+            // FIN DEL CÓDIGO AÑADIDO
+            // =======================================================================
 
-        const apiToken = document.getElementById('apiTokenSend').value;
-        const waAccount = document.getElementById('waAccountSend').value;
-        const recipientAccount = document.getElementById('recipientAccountSend').value;
-        const messageText = document.getElementById('messageTextSend').value;
-        const responseContainer = document.getElementById('sendMessageResponse');
+            sendMessageForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                const apiSendChatUrl = this.closest('.card').dataset.apiSendChatUrl;
+                const apiToken = document.getElementById('apiTokenSend').value;
+                const waAccount = document.getElementById('waAccountSend').value;
+                const recipientAccount = document.getElementById('recipientAccountSend').value;
+                const messageText = document.getElementById('messageTextSend').value;
+                const responseContainer = document.getElementById('sendMessageResponse');
 
-        if (!apiToken || !waAccount || !recipientAccount || !messageText) {
-            Swal.fire({
-        icon: 'warning',
-        title: 'Advertencia!',
-        text: 'Todos los campos son obligatorios.',
-        });
-            return;
-        }
-
-        responseContainer.innerHTML = 'Enviando mensaje...';
-
-        try {
-            const response = await fetch(apiSendChatUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    token: apiToken,
-                    uid: waAccount,
-                    to: recipientAccount,
-                    text: messageText,
-                    custom_uid: 'dev-test-' + Date.now() // Añadimos el custom_uid requerido
-                })
-            });
-
-                        const data = await response.json();
-
-                        if (response.ok) {
-                            responseContainer.innerHTML = `<p class="success">Mensaje enviado correctamente.</p>`;
-                        } else {
-                            console.error("Error en el envío de mensaje:", data);
-                            responseContainer.innerHTML = `<p class="error">Error: ${data.error || 'No se pudo enviar el mensaje'}</p>`;
-                        }
-                            } catch (error) {
-                        console.error("Error de red:", error);
-                        responseContainer.innerHTML = `<p class="error">Error de red al enviar el mensaje.</p>`;
-                            }
+                if (!apiToken || !waAccount || !recipientAccount || !messageText) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Advertencia!',
+                        text: 'Todos los campos son obligatorios.',
                     });
-            }
-            }
+                    return;
+                }
+
+                responseContainer.innerHTML = 'Enviando mensaje...';
+
+                try {
+                    const response = await fetch(apiSendChatUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            token: apiToken,
+                            uid: waAccount,
+                            to: recipientAccount,
+                            text: messageText,
+                            custom_uid: 'dev-test-' + Date.now()
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        responseContainer.innerHTML = `<p class="success">Mensaje enviado correctamente.</p>`;
+                    } else {
+                        console.error("Error en el envío de mensaje:", data);
+                        responseContainer.innerHTML = `<p class="error">Error: ${data.error || 'No se pudo enviar el mensaje'}</p>`;
+                    }
+                } catch (error) {
+                    console.error("Error de red:", error);
+                    responseContainer.innerHTML = `<p class="error">Error de red al enviar el mensaje.</p>`;
+                }
+            });
+        }
+    }
 
     function initRegisterPhoneFormListener() {
         const registerPhoneForm = document.getElementById('registerPhoneForm');
@@ -242,7 +255,7 @@ if (sendMessageForm) {
 
                  // Mostrar el GIF de carga
                 registerPhoneResponse.innerHTML = '<img src="img/loading.gif" alt="Cargando..." width="50">';
-                 registerPhoneResponse.innerHTML += ' Envíando solicitud...'; // Add this line
+                registerPhoneResponse.innerHTML += ' Envíando solicitud...';
 
                 try {
                     const response = await fetch('pages/registrar_telefono.php', {
@@ -262,17 +275,17 @@ if (sendMessageForm) {
                         if (data.qrCode) {
                             registerPhoneResponse.innerHTML += `<div class="qr-container"><img src="${data.qrCode}" alt="QR Code"></div>`;
                         }
-                    const volverBtn = document.createElement('button');
-                    volverBtn.textContent = 'Volver a Mis Teléfonos';
-                    volverBtn.className = 'btn btn-primary';
-                    volverBtn.addEventListener('click', function() {
-                        loadContent('pages/mis_telefonos.php');
-                    });
-                     registerPhoneResponse.appendChild(volverBtn); // Append the button to the response container
+                        const volverBtn = document.createElement('button');
+                        volverBtn.textContent = 'Volver a Mis Teléfonos';
+                        volverBtn.className = 'btn btn-primary';
+                        volverBtn.addEventListener('click', function() {
+                            loadContent('pages/mis_telefonos.php');
+                        });
+                        registerPhoneResponse.appendChild(volverBtn);
                     } else {
                         registerPhoneResponse.innerHTML = `<p class="error">${data.message}</p>`;
                     }
-                    phoneNumberInput.value = ''; // Clear the input field regardless of success or failure
+                    phoneNumberInput.value = '';
                 } catch (error) {
                     console.error('Error de red:', error);
                     registerPhoneResponse.innerHTML = `<p class="error">Error de red al registrar el número.</p>`;
@@ -280,6 +293,7 @@ if (sendMessageForm) {
             });
         }
     }
+    
     function initChangePasswordFormListener() {
         const changePasswordForm = document.getElementById('changePasswordForm');
         if (changePasswordForm) {
@@ -324,20 +338,21 @@ if (sendMessageForm) {
     }
 
     function validatePhoneNumber(phoneNumber) {
-        const phoneNumberRegex = /^\d{10,15}$/; // Regular expression for XXXXXXXXXXXX
+        const phoneNumberRegex = /^\d{10,15}$/;
         const phoneNumberInput = document.getElementById('numero');
 
         if (!phoneNumberRegex.test(phoneNumber)) {
         Swal.fire({
-        icon: 'error',
-        title: 'Error!',
-        text: 'Por favor, ingrese un número de teléfono válido en formato WhatsApp (ej: 584125927917 o 573205649404). Debe comenzar con 584 y tener entre 12 y 13 dígitos.',
+            icon: 'error',
+            title: 'Error!',
+            text: 'Por favor, ingrese un número de teléfono válido en formato WhatsApp (ej: 584125927917 o 573205649404).',
         });
         phoneNumberInput.focus();
         return false;
         }
         return true;
     }
+
     function initTokenToggle() {
         const tokenElements = document.querySelectorAll('.token-value');
 
@@ -388,5 +403,4 @@ if (sendMessageForm) {
     initEventListeners();
     initRegisterPhoneFormListener();
     initChangePasswordFormListener();
-
 });
