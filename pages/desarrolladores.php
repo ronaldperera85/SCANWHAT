@@ -88,7 +88,7 @@ try {
             </div>
             <div>
                 <label for="messageTextSend">Message Text:</label>
-                <textarea id="messageTextSend" name="messageTextSend" rows="3" required></textarea>
+                <textarea id="messageTextSend" name="messageTextSend" rows="3" required placeholder="Mensaje..."></textarea>
             </div>
             <button type="submit"><i class="fas fa-paper-plane"></i> Enviar Mensaje</button>
         </form>
@@ -99,10 +99,10 @@ try {
     <div class="card">
         <h2><i class="fas fa-cog"></i> Instrucciones para ajustes dentro de <strong>ICAROSoft</strong></h2>
         <p> </p>
-        <p>- Para Masivos y Notificaciones (url): Mensajeria > WhatsApp > Perfiles Api</p>
-        <p><h4 class="url-wrap"><?php echo htmlspecialchars($apiSendChatUrl); ?></h4></p>
+        <p>- Para Masivos y Notificaciones (url): Mensajeria > WhatsApp > Perfiles Api</p>        
+        <div class="url-wrap"><?php echo htmlspecialchars($apiSendChatUrl); ?></div>
         <p>- Para Helpdesk (Base Url): Soporte Técnico > Helpdesk > Configuración > Api Token</p>
-        <p><h4 class="url-wrap"><?php echo htmlspecialchars($apiHelpdeskUrl); ?></h4></p>
+        <div class="url-wrap" style="margin-top:15px;"><?php echo htmlspecialchars($apiHelpdeskUrl); ?></div>
     </div>
 </div>
 
@@ -115,10 +115,11 @@ try {
     border-radius: 5px;
 }
 .card h2 { margin-top: 0; margin-bottom: 15px; }
-.card div { margin-bottom: 10px; }
+/* Ajustado para no afectar a los .url-wrap si son divs */
+.card form div { margin-bottom: 10px; } 
 .card label { display: block; margin-bottom: 5px; font-weight: bold; }
 
-/* NUEVO: Estilos unificados para todos los campos del formulario */
+/* Estilos unificados para todos los campos del formulario */
 .card input[type="text"],
 .card textarea,
 .card select {
@@ -127,12 +128,13 @@ try {
     border: 1px solid #ddd;
     border-radius: 4px;
     box-sizing: border-box; 
-    background-color: #fff; /* Fondo blanco por defecto */
+    background-color: #fff; /* Fondo blanco */
+    color: #333;           /* Texto oscuro */
 }
 
-/* NUEVO: Estilo para campos de solo lectura */
+/* Estilo para campos de solo lectura */
 .card input[readonly] {
-    background-color: #f0f0f0;
+    background-color: #f0f0f0; /* Un gris claro para diferenciar */
     cursor: not-allowed;
 }
 
@@ -154,13 +156,27 @@ try {
 .success { color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; }
 .error { color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; }
 
-/* NUEVO: Estilo para las URLs para que no se desborden */
+/* Estilo para las URLs, ahora imitando a los inputs */
 .url-wrap {
-    word-break: break-all;
-    background-color: #f0f0f0;
-    padding: 10px;
+    /* Propiedades copiadas de los inputs para consistencia */
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
     border-radius: 4px;
+    box-sizing: border-box; 
+    background-color: #fff; /* Fondo blanco, como los inputs */
+    color: #1a1a2e;            /* Texto oscuro, como los inputs */
+    
+    /* Propiedades específicas para la URL */
     font-family: monospace;
     font-size: 0.9em;
+    word-break: break-all;
+    
+    /* Reset para que se vea bien si usas <h4> o <div> */
+    margin: 0;
+    font-weight: normal; 
 }
+
+/* IMPORTANTE: Hemos ELIMINADO la regla 'body.dark-theme .url-wrap' 
+   para que se mantenga blanco en ambos modos. */
 </style>
