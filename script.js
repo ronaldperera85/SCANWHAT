@@ -8,8 +8,28 @@ document.addEventListener('DOMContentLoaded', function () {
     const logoutIcon = document.getElementById('logout-icon');
 
     toggleButton.addEventListener('click', function () {
+        // Primero, verificamos si la barra se va a colapsar o a expandir
+        const isCollapsing = !sidebar.classList.contains('collapsed');
+
+        // Aplicamos el cambio visual
         sidebar.classList.toggle('collapsed');
+        
+        // Actualizamos los atributos de accesibilidad para lectores de pantalla
+        toggleButton.setAttribute('aria-expanded', !isCollapsing);
+        sidebar.setAttribute('aria-hidden', isCollapsing);
+
+        // ¡LA LÍNEA MÁGICA!
+        // Si la barra se está colapsando, movemos el foco de vuelta al botón.
+        // Esto evita que el foco se quede "atrapado" en un elemento invisible.
+        if (isCollapsing) {
+            toggleButton.focus();
+        }
     });
+
+    // También es buena práctica establecer el estado inicial al cargar la página
+    // Asumiendo que la barra empieza expandida
+    toggleButton.setAttribute('aria-expanded', 'true');
+    sidebar.setAttribute('aria-hidden', 'false');
 
     // Cambia el tema
     themeCheckbox.addEventListener('change', function () {
