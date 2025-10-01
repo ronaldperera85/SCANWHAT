@@ -8,28 +8,24 @@ document.addEventListener('DOMContentLoaded', function () {
     const logoutIcon = document.getElementById('logout-icon');
 
     toggleButton.addEventListener('click', function () {
-        // Primero, verificamos si la barra se va a colapsar o a expandir
-        const isCollapsing = !sidebar.classList.contains('collapsed');
+    // Primero, verificamos si la barra se va a colapsar o a expandir
+    const isCollapsing = !sidebar.classList.contains('collapsed');
 
-        // Aplicamos el cambio visual
-        sidebar.classList.toggle('collapsed');
-        
-        // Actualizamos los atributos de accesibilidad para lectores de pantalla
-        toggleButton.setAttribute('aria-expanded', !isCollapsing);
-        sidebar.setAttribute('aria-hidden', isCollapsing);
+    // Aplicamos el cambio visual
+    sidebar.classList.toggle('collapsed');
+    
+    // Actualizamos el aria-expanded del botón
+    toggleButton.setAttribute('aria-expanded', !isCollapsing);
 
-        // ¡LA LÍNEA MÁGICA!
-        // Si la barra se está colapsando, movemos el foco de vuelta al botón.
-        // Esto evita que el foco se quede "atrapado" en un elemento invisible.
-        if (isCollapsing) {
-            toggleButton.focus();
-        }
-    });
+    // 1. PRIMERO, si la barra se está colapsando, sacamos el foco de ella.
+    if (isCollapsing) {
+        toggleButton.focus();
+    }
 
-    // También es buena práctica establecer el estado inicial al cargar la página
-    // Asumiendo que la barra empieza expandida
-    toggleButton.setAttribute('aria-expanded', 'true');
-    sidebar.setAttribute('aria-hidden', 'false');
+    // 2. LUEGO, ahora que el foco está seguro, ocultamos la barra.
+    sidebar.setAttribute('aria-hidden', isCollapsing);
+});
+
 
     // Cambia el tema
     themeCheckbox.addEventListener('change', function () {
@@ -220,8 +216,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!apiToken || !waAccount || !recipientAccount || !messageText) {
                     Swal.fire({
                         icon: 'warning',
-                        title: 'Advertencia!',
-                        text: 'Todos los campos son obligatorios.',
+                        title: '¡Campos Incompletos!',
+                        text: 'Por favor, completa todos los campos para enviar el mensaje.',
                     });
                     return;
                 }
@@ -325,6 +321,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 const confirmPassword = document.getElementById('confirm_password').value;
                 const changePasswordResponse = document.getElementById('changePasswordResponse');
 
+                // =======================================================================
+            // CÓDIGO AÑADIDO: Validación con SweetAlert
+            // =======================================================================
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '¡Campos Incompletos!',
+                    text: 'Por favor, completa todos los campos para cambiar tu contraseña.',
+                });
+                return; // Detiene la ejecución de la función aquí si hay campos vacíos
+            }
+            // =======================================================================
+            // FIN DEL CÓDIGO AÑADIDO
+            // =======================================================================
+                
                 changePasswordResponse.innerHTML = 'Enviando solicitud...';
 
                 try {
@@ -345,17 +356,25 @@ document.addEventListener('DOMContentLoaded', function () {
                     const data = await response.json();
 
                     if (data.success) {
-                        changePasswordResponse.innerHTML = `<p class="success">${data.message}</p>`;
-                    } else {
-                        changePasswordResponse.innerHTML = `<p class="error">${data.message}</p>`;
-                    }
-                } catch (error) {
-                    console.error('Error de red:', error);
-                    changePasswordResponse.innerHTML = `<p class="error">Error de red al cambiar la contraseña.</p>`;
+                         changePasswordResponse.innerHTML = ''; // Limpia el mensaje de "enviando"
+                    changePasswordForm.reset(); // Limpia los campos del formulario
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: data.message, // Muestra el mensaje de éxito del servidor
+                    });
+                    // =========================
+                } else {
+                    changePasswordResponse.innerHTML = `<p class="error">${data.message}</p>`;
                 }
-            });
-        }
+            } catch (error) {
+                console.error('Error de red:', error);
+                changePasswordResponse.innerHTML = `<p class="error">Error de red al cambiar la contraseña.</p>`;
+            }
+        });
     }
+}
 
     function validatePhoneNumber(phoneNumber) {
         const phoneNumberRegex = /^\d{10,15}$/;
@@ -413,14 +432,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Evento de cierre de sesión
-    if (logoutIcon) {
+     if (logoutIcon) {
         logoutIcon.addEventListener('click', function () {
             window.location.href = 'pages/logout.php';
         });
     }
 
-    // Inicializar eventos en la primera carga
-    initEventListeners();
-    initRegisterPhoneFormListener();
-    initChangePasswordFormListener();
+    // Las llamadas a init... ya no están aquí. ¡Perfecto!
 });

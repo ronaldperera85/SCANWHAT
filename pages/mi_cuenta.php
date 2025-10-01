@@ -82,7 +82,7 @@ try {
         </div>
         <div class="card">
             <h2 style="text-align: center;">Cambiar Contraseña</h2>
-            <form id="changePasswordForm" style="text-align: center;">
+            <form id="changePasswordForm" style="text-align: center;" novalidate>
                 <input type="hidden" name="change_password" value="1">
                 <div class="form-group">
                     <label for="old_password">Contraseña Actual:</label>
