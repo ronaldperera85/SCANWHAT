@@ -19,7 +19,7 @@ try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
         header('Content-Type: application/json'); // Indicar JSON response
 
-        $oldPassword = $_POST['old_password'];
+        $oldPassword = trim($_POST['old_password']);
         $newPassword = $_POST['new_password'];
         $confirmPassword = $_POST['confirm_password'];
 
@@ -39,15 +39,15 @@ try {
             $stmt->execute(['user_id' => $_SESSION['user_id']]);
             $userData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($userData) {
-                // Verificar la contraseña actual
-                if (password_verify($oldPassword, $userData['password'])) {
-                    // Hash de la nueva contraseña
-                    $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+             if ($userData) {
+                // VERIFICAR CONTRASEÑA EN TEXTO PLANO (RIESGOSO)
+                if ($oldPassword === $userData['password']) { // <-- ¡CAMBIO AQUÍ!
+                    // GUARDAR LA NUEVA CONTRASEÑA EN TEXTO PLANO (RIESGOSO)
+                    $newPasswordPlain = $newPassword; // Usar la nueva contraseña en texto plano
 
                     // Actualizar la contraseña
                     $stmt = $pdo->prepare("UPDATE usuarios SET password = :password WHERE id = :user_id");
-                    $stmt->execute(['password' => $hashedPassword, 'user_id' => $_SESSION['user_id']]);
+                    $stmt->execute(['password' => $newPasswordPlain, 'user_id' => $_SESSION['user_id']]);
 
                     echo json_encode(['success' => true, 'message' => "Contraseña actualizada con éxito."]);
                     exit;
