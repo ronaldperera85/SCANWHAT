@@ -1,47 +1,56 @@
 <?php
 session_start();
-include '../db/conexion.php';
+include '../db/conexion.php'; // Asegúrate que esta ruta es correcta desde registro.php
 
-$error = '';
-$success = '';
+// Si la solicitud es POST Y se esperan datos de registro
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['email']) || isset($_POST['nombre']))) {
+    
+    // Configurar la respuesta como JSON
+    header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nombre = trim($_POST['nombre']);
-    $email = trim($_POST['email']);
-    $password = trim($_POST['password']);
-    $confirm_password = trim($_POST['confirm_password']);
+    $nombre = trim($_POST['nombre'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $password = trim($_POST['password'] ?? '');
+    $confirm_password = trim($_POST['confirm_password'] ?? '');
 
+    // 1. Validaciones PHP
     if (empty($nombre) || empty($email) || empty($password) || empty($confirm_password)) {
-        $error = "Todos los campos son obligatorios.";
+        echo json_encode(['success' => false, 'message' => "Todos los campos son obligatorios."]);
+        exit;
     } elseif ($password !== $confirm_password) {
-        $error = "Las contraseñas no coinciden.";
-    } else {
-        // Verificar si el correo ya está registrado
+        echo json_encode(['success' => false, 'message' => "Las contraseñas no coinciden."]);
+        exit;
+    }
+
+    try {
+        // 2. Verificar si el correo ya está registrado
         $stmt = $pdo->prepare("SELECT id FROM usuarios WHERE email = :email");
         $stmt->execute(['email' => $email]);
         if ($stmt->rowCount() > 0) {
-            $error = "El correo ya está registrado.";
+            echo json_encode(['success' => false, 'message' => "El correo ya está registrado."]);
+            exit;
         } else {
-            // Registrar al usuario
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            // 3. Registrar al usuario
+            // Usamos $password en texto plano según tu código, aunque se recomienda hashing
             $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, email, password) VALUES (:nombre, :email, :password)");
             $stmt->execute([
                 'nombre' => $nombre,
                 'email' => $email,
-                // --- INICIO DE LA MODIFICACIÓN registro.php & login.php ---
-                //'password' => $hashed_password, // Cambiado a 'password' para mantener la consistencia
                 'password' => $password,
             ]);
 
-            // Redireccionar al usuario a login.php
-            header("Location: /login"); // Ajustado para la URL amigable
-            exit(); // Asegura que el script se detenga después de la redirección
-            // $success = "Usuario registrado exitosamente. <a href='login.php'>Inicia sesión</a>."; // Ya no es necesario
+            // 4. Devolver JSON de éxito con la URL de redirección
+            echo json_encode(['success' => true, 'message' => "Registro exitoso. Serás redirigido al inicio de sesión.", 'redirect' => '/login']); 
+            exit;
         }
+    } catch (PDOException $e) {
+        // Error de base de datos
+        echo json_encode(['success' => false, 'message' => "Error al registrar el usuario: " . $e->getMessage()]);
+        exit;
     }
 }
+// Si NO es un POST (o es un POST sin datos), se muestra el HTML de registro
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -58,18 +67,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="SCANWHAT" />
     <meta property="og:locale" content="es_ES" />
+    <!-- INCLUIR SWEETALERT2 CDN AQUÍ -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
-<div class="login-container"> <!-- Usamos la misma clase que en login.php para el contenedor -->
-    <div class="card"> <!-- Usamos la clase "card" para la tarjeta -->
+<div class="login-container">
+    <div class="card">
+        <div class="logo-container">
+            <img src="/img/logo.png" alt="Logo de ScanWhat">
+        </div>
         <h2>Registro de Usuario</h2>
-        <?php if ($error): ?>
-            <div class="alert alert-danger"><?php echo $error; ?></div>
-        <?php elseif ($success): ?>
-            <div class="alert alert-success"><?php echo $success; ?></div>
-        <?php endif; ?>
-        <form method="POST">
+        
+        <!-- ELIMINAMOS EL BLOQUE DE ERRORES PHP/HTML ANTIGUO -->
+        
+        <!-- Añadir ID al formulario y novalidate. Quitar method="POST" -->
+        <form id="registerForm" novalidate>
             <div class="form-group">
                 <label for="nombre">Nombre Completo:</label>
                 <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Ingrese su nombre" required>
@@ -89,9 +102,103 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit" class="btn btn-primary">Registrarse</button>
         </form>
         <div class="register-link">
-            ¿Ya tienes una cuenta? <a href="/login">Inicia sesión aquí</a> <!-- ajustado para la URL amigable -->
+            ¿Ya tienes una cuenta? <a href="/login">Inicia sesión aquí</a>
         </div>
     </div>
 </div>
+
+<!-- Script para manejar el formulario con Fetch y SweetAlert2 -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const registerForm = document.getElementById('registerForm');
+        
+        if (registerForm) {
+            registerForm.addEventListener('submit', async function(event) {
+                event.preventDefault(); // Evita el envío tradicional y la recarga de página
+
+                const nombre = document.getElementById('nombre').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm_password').value;
+                const submitButton = registerForm.querySelector('button[type="submit"]');
+
+                if (!nombre || !email || !password || !confirmPassword) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '¡Campos Incompletos!',
+                        text: 'Por favor, completa todos los campos del formulario.',
+                    });
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '¡Contraseñas no Coinciden!',
+                        text: 'La contraseña y la confirmación de contraseña no coinciden.',
+                    });
+                    return;
+                }
+
+                // Mostrar estado de carga en el botón
+                const originalText = submitButton.textContent;
+                submitButton.disabled = true;
+                submitButton.textContent = 'Registrando...';
+
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('nombre', nombre);
+                    formData.append('email', email);
+                    formData.append('password', password);
+                    formData.append('confirm_password', confirmPassword);
+
+                    // Envía los datos al mismo archivo PHP
+                    const response = await fetch('', { 
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: formData
+                    });
+                    
+                    const data = await response.json(); 
+                    
+                    if (data.success) {
+                        // Éxito: Muestra SweetAlert y redirige al login
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Registro Exitoso!',
+                            text: data.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.href = data.redirect; // Redirige a /login
+                        });
+                    } else {
+                        // Error: Muestra SweetAlert con el mensaje del servidor
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de Registro',
+                            text: data.message,
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error de red o de servidor:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de Conexión',
+                        text: 'Ocurrió un error de red al intentar registrarte. Inténtalo de nuevo.',
+                    });
+                } finally {
+                    // Restaura el botón solo en caso de error
+                    if (!data.success) {
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalText;
+                    }
+                }
+            });
+        }
+    });
+</script>
 </body>
 </html>
