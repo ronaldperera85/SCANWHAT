@@ -57,7 +57,7 @@ try {
 
     <div class="card" data-api-send-chat-url="<?php echo htmlspecialchars($apiSendChatUrl); ?>">
         <h2><i class="fas fa-envelope"></i> Prueba de Envío de Mensaje</h2>
-        <form id="sendMessageForm">
+        <form id="sendMessageForm" novalidate>
             <!-- CAMPO MODIFICADO Y REORDENADO: WhatsApp Account UID -->
             <div>
                 <label for="waAccountSend">WhatsApp Account UID:</label>

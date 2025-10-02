@@ -222,6 +222,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
+                // Mostrar mensaje de carga (puedes mantenerlo, pero se limpiará después)
                 responseContainer.innerHTML = 'Enviando mensaje...';
 
                 try {
@@ -240,16 +241,37 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
 
                     const data = await response.json();
-
+                    
+                    // Limpiar el mensaje de "enviando"
+                    responseContainer.innerHTML = ''; 
+                    
                     if (response.ok) {
-                        responseContainer.innerHTML = `<p class="success">Mensaje enviado correctamente.</p>`;
+                        // === CAMBIO CLAVE: USAR SWEETALERT PARA EL ÉXITO ===
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Mensaje Enviado!',
+                            text: 'El mensaje ha sido enviado correctamente.'
+                        });
+                        sendMessageForm.reset(); // Limpiar el formulario
                     } else {
                         console.error("Error en el envío de mensaje:", data);
-                        responseContainer.innerHTML = `<p class="error">Error: ${data.error || 'No se pudo enviar el mensaje'}</p>`;
+                        // === CAMBIO CLAVE: USAR SWEETALERT PARA EL ERROR DE SERVIDOR ===
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error al Enviar',
+                            text: `Error: ${data.error || 'No se pudo enviar el mensaje.'}`
+                        });
                     }
                 } catch (error) {
                     console.error("Error de red:", error);
-                    responseContainer.innerHTML = `<p class="error">Error de red al enviar el mensaje.</p>`;
+                    // Limpiar el mensaje de "enviando" en caso de error de red
+                    responseContainer.innerHTML = ''; 
+                    // === CAMBIO CLAVE: USAR SWEETALERT PARA EL ERROR DE RED ===
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de Red',
+                        text: 'Ocurrió un error de red al intentar enviar el mensaje.'
+                    });
                 }
             });
         }
