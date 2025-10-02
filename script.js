@@ -366,7 +366,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
                     // =========================
                 } else {
-                    changePasswordResponse.innerHTML = `<p class="error">${data.message}</p>`;
+                    // === CAMBIO AQUÍ: USAR SWEETALERT PARA EL ERROR ===
+                    changePasswordResponse.innerHTML = ''; // Limpia el mensaje de "enviando"
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al Cambiar Contraseña',
+                        text: data.message,
+                    });
                 }
             } catch (error) {
                 console.error('Error de red:', error);
@@ -432,11 +438,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Evento de cierre de sesión
-     if (logoutIcon) {
+    if (logoutIcon) {
         logoutIcon.addEventListener('click', function () {
             window.location.href = 'pages/logout.php';
         });
     }
 
-    // Las llamadas a init... ya no están aquí. ¡Perfecto!
 });
