@@ -1,39 +1,49 @@
 <?php
 session_start();
-include '../db/conexion.php';
+include '../db/conexion.php'; // Asegúrate que esta ruta es correcta desde login.php
 
-$error = '';
+// Si la solicitud es POST Y existen las variables de email o password (es una solicitud de login AJAX)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['email']) || isset($_POST['password']))) {
+    
+    // Configurar la respuesta como JSON y evitar que se imprima HTML
+    header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email']);
-    $password = trim($_POST['password']);
+    $email = trim($_POST['email'] ?? '');
+    $password = trim($_POST['password'] ?? '');
 
     if (empty($email) || empty($password)) {
-        $error = "Por favor, complete todos los campos.";
-    } else {
+        // Devolver JSON: Campos incompletos
+        echo json_encode(['success' => false, 'message' => "Por favor, complete todos los campos."]);
+        exit;
+    }
+
+    try {
         // Verificar si el usuario existe en la base de datos
         $stmt = $pdo->prepare("SELECT id, nombre, password FROM usuarios WHERE email = :email");
         $stmt->execute(['email' => $email]);
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // --- INICIO DE LA MODIFICACIÓN registro.php & login.php ---
-        // Antes era: if ($usuario && password_verify($password, $usuario['password']))
-
-        // AHORA es: Compara DIRECTAMENTE la contraseña ingresada ($password)
-        // con la contraseña guardada en la base de datos ($usuario['password'])
+        // Compara contraseñas
         if ($usuario && $password === $usuario['password']) {
-        // --- FIN DE LA MODIFICACIÓN ---
-
             // Credenciales correctas, iniciar sesión
             $_SESSION['user_id'] = $usuario['id'];
             $_SESSION['user_name'] = $usuario['nombre'];
-            header("Location: /menu"); // Ajustado para la URL amigable
+            
+            // Devolver JSON de éxito con la URL de redirección
+            echo json_encode(['success' => true, 'redirect' => '/menu']); 
             exit;
         } else {
-            $error = "Credenciales incorrectas.";
+            // Devolver JSON: Credenciales incorrectas
+            echo json_encode(['success' => false, 'message' => "Credenciales incorrectas."]);
+            exit;
         }
+    } catch (PDOException $e) {
+        // Error de base de datos
+        echo json_encode(['success' => false, 'message' => "Error de base de datos: " . $e->getMessage()]);
+        exit;
     }
 }
+// Si NO es un POST (o es un POST sin datos), se muestra el HTML de inicio de sesión
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -51,6 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="SCANWHAT" />
     <meta property="og:locale" content="es_ES" />
+    <!-- INCLUIR SWEETALERT2 CDN AQUÍ -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <div class="login-container">
@@ -59,10 +71,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <img src="/img/logo.png" alt="Logo de ScanWhat">
             </div>
             <h2>Iniciar Sesión</h2>
-            <?php if ($error): ?>
-                <div class="alert alert-danger"><?php echo $error; ?></div>
-            <?php endif; ?>
-            <form method="POST">
+            
+            <!-- IMPORTANTE: ELIMINA CUALQUIER BLOQUE PHP QUE MUESTRE $error -->
+            
+            <!-- Añadir ID al formulario y novalidate. Quitar method="POST" para evitar envío tradicional si JS falla -->
+            <form id="loginForm" novalidate>
                 <div class="form-group">
                     <label for="email">Correo Electrónico:</label>
                     <input type="email" id="email" name="email" class="form-control" placeholder="Ingrese su correo" required>
@@ -74,9 +87,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="submit" class="btn btn-primary">Entrar</button>
             </form>
             <div class="register-link">
-                ¿No tienes una cuenta? <a href="/registro">Regístrate aquí</a> <!-- ajustado para la URL amigable -->
+                ¿No tienes una cuenta? <a href="/registro">Regístrate aquí</a>
             </div>
         </div>
     </div>
+    
+    <!-- Script para manejar el formulario con Fetch y SweetAlert2 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            
+            if (loginForm) {
+                loginForm.addEventListener('submit', async function(event) {
+                    event.preventDefault(); // <--- CLAVE PARA EVITAR EL ENVÍO TRADICIONAL
+
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+                    const submitButton = loginForm.querySelector('button[type="submit"]');
+
+                    if (!email || !password) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '¡Campos Incompletos!',
+                            text: 'Por favor, ingrese su correo electrónico y contraseña.',
+                        });
+                        return;
+                    }
+
+                    const originalText = submitButton.textContent;
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Verificando...';
+
+                    try {
+                        const formData = new URLSearchParams();
+                        formData.append('email', email);
+                        formData.append('password', password);
+
+                        // Envía los datos al mismo archivo PHP
+                        const response = await fetch('', { 
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: formData
+                        });
+                        
+                        const data = await response.json(); 
+                        
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Sesión Iniciada!',
+                                text: 'Redirigiendo al menú principal...',
+                                showConfirmButton: false,
+                                timer: 1000
+                            }).then(() => {
+                                window.location.href = data.redirect;
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error de Inicio de Sesión',
+                                text: data.message,
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error de red o de servidor:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de Conexión',
+                            text: 'Ocurrió un error de red al intentar iniciar sesión. Inténtalo de nuevo.',
+                        });
+                    } finally {
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalText;
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
