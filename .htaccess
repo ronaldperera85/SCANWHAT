@@ -1,41 +1,20 @@
 RewriteEngine On
-RewriteBase /
+RewriteBase /scanwhat/
 
-# --- REGLA PARA EL PROCESO DE RENOVACIÓN DE SSL (ACME Challenge) ---
-RewriteRule ^\.well-known/acme-challenge/ - [L]
+# Excepción: La URL "/menu" debe cargar la plantilla principal "index.php"
+RewriteRule ^menu/?$ index.php [L]
 
-# --- REGLAS PARA 'menu' (PÁGINA PRINCIPAL) ---
-RewriteCond %{THE_REQUEST} \s/index\.php[\s?] [NC]
-RewriteRule ^index\.php$ menu [R=301,L,NE]
+# 1. Redirige el acceso directo a archivos .php a su URL limpia
+# Ejemplo: /scanwhat/pages/login.php -> /scanwhat/login
+RewriteCond %{THE_REQUEST} \s/pages/([^\s.]+)\.php [NC]
+RewriteRule ^ %1 [R=301,L]
 
+# 2. Reescritura interna de URLs limpias al archivo .php correspondiente en /pages
+# Esto aplica a /login, /registro, /dashboard, etc.
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{DOCUMENT_ROOT}/index.php -f
-RewriteRule ^menu/?$ index.php [L,NC]
+RewriteRule ^([\w-]+)/?$ pages/$1.php [L]
 
-# --- REGLAS PARA login ---
-RewriteCond %{THE_REQUEST} \s/pages/login\.php[\s?] [NC]
-RewriteRule ^pages/login\.php$ login [R=301,L,NE]
-
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{DOCUMENT_ROOT}/pages/login.php -f
-RewriteRule ^login/?$ pages/login.php [L,NC]
-
-# --- REGLAS PARA registro ---
-RewriteCond %{THE_REQUEST} \s/pages/registro\.php[\s?] [NC]
-RewriteRule ^pages/registro\.php$ registro [R=301,L,NE]
-
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{DOCUMENT_ROOT}/pages/registro.php -f
-RewriteRule ^registro/?$ pages/registro.php [L,NC]
-
-# --- REGLAS PARA logout ---
-RewriteCond %{THE_REQUEST} \s/pages/logout\.php[\s?] [NC]
-RewriteRule ^pages/logout\.php$ logout [R=301,L,NE]
-
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{DOCUMENT_ROOT}/pages/logout.php -f
-RewriteRule ^logout/?$ pages/logout.php [L,NC]
+# 3. Regla para la raíz: Si alguien entra a /scanwhat/, lo redirige a /menu
+RewriteCond %{REQUEST_URI} ^/scanwhat/?$
+RewriteRule ^$ menu [R=301,L]

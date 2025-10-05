@@ -1,11 +1,13 @@
 <?php
-session_start(); // Asegurar inicio de sesión
+session_start();
 
-// Redirigir si el usuario no está logueado
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../index.php');
-    exit;
+// Bloque de protección con redirección
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    // Si no ha iniciado sesión, lo redirigimos a la página de login.
+    header("Location: login"); // <-- ¡La línea clave!
+    exit(); // Detener la ejecución del script.
 }
+
 
 include '../db/conexion.php'; // Conexión PDO
 
@@ -230,8 +232,7 @@ try {
 
     <?php // Botón para agregar nuevo número ?>
     <button id="add-phone" class="btn btn-primary mb-3"><i class="fas fa-plus"></i> Agregar Nuevo Número</button><p></p>
-    <!--<button id="add-phone" class="btn btn-primary mb-3" onclick="loadContent('pages/registrar_telefono.php')"><i class="fas fa-plus"></i> Agregar Nuevo Número</button><p></p>-->
-
+    
     <?php // Lista de números existentes ?>
     <div class="phone-list row">
         <?php if (empty($numeros)): ?>

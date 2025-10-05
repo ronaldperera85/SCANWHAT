@@ -1,6 +1,14 @@
 <?php
 session_start();
 
+// Bloque de protección con redirección
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    // Si no ha iniciado sesión, lo redirigimos a la página de login.
+    header("Location: login"); // <-- ¡La línea clave!
+    exit(); // Detener la ejecución del script.
+}
+
+
 require '../db/conexion.php';
 
 // Función para verificar si un usuario es administrador
@@ -20,7 +28,7 @@ function isAdmin($usuario_id, $pdo) {
 
 // Verificar si el usuario tiene permisos de administrador
 if (!isset($_SESSION['user_id']) || !isAdmin($_SESSION['user_id'], $pdo)) {
-    header("Location: login.php"); // Redirigir a la página de inicio de sesión si no es administrador
+    header("Location: login"); // Redirigir a la página de inicio de sesión si no es administrador
     exit;
 }
 

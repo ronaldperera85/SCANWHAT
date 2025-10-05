@@ -1,12 +1,13 @@
 <?php
-// NUEVO: Iniciar la sesión para poder identificar al usuario
 session_start();
 
-// NUEVO: Verificar que el usuario ha iniciado sesión
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(403); // Forbidden
-    die("Acceso denegado. Es necesario iniciar sesión.");
+// Bloque de protección con redirección
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    // Si no ha iniciado sesión, lo redirigimos a la página de login.
+    header("Location: login"); // <-- ¡La línea clave!
+    exit(); // Detener la ejecución del script.
 }
+
 
 // NUEVO: Incluir la conexión a la base de datos (asegúrate que la ruta sea correcta)
 require_once __DIR__ . '/../db/conexion.php'; 

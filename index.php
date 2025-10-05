@@ -3,7 +3,7 @@ session_start();
 
 // Verificar si el usuario está autenticado
 if (!isset($_SESSION['user_id'])) {
-    header("Location: /login"); // Ajustado para la URL amigable
+    header("Location: login"); // Ajustado para la URL amigable
     exit;
 }
 
@@ -25,7 +25,7 @@ function isAdmin($usuario_id, $pdo) {
 }
 
 // Definir la ruta al favicon (ajusta la ruta si es necesario)
-$faviconPath = "img/small.png";
+$faviconPath = "./img/small.png";
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -49,7 +49,7 @@ $faviconPath = "img/small.png";
     <aside class="sidebar expanded">
         <header>
             <div class="logo">
-                <img src="img/small.png" alt="Logo de ScanWhat">
+                <img src="./img/small.png" alt="Logo de ScanWhat">
             </div>
             <div class="codinglab">
                 <p>SCANWHAT</p>
@@ -57,17 +57,18 @@ $faviconPath = "img/small.png";
             </div>
             <button class="toggle-btn"><i class="fas fa-angle-left"></i></button>
         </header>
-        <nav>
-            <ul>
-                <li><a href="#" data-page="pages/dashboard.php"><i class="fas fa-home"></i><span>Tablero</span></a></li>
-                <li><a href="#" data-page="pages/mi_cuenta.php"><i class="fas fa-user"></i><span>Mi cuenta</span></a></li>
-                <li><a href="#" data-page="pages/mis_telefonos.php"><i class="fas fa-phone"></i><span>Mis teléfonos</span></a></li>
-                <li><a href="#" data-page="pages/desarrolladores.php"><i class="fas fa-code"></i><span>Desarrolladores</span></a></li>
-                <?php if (isAdmin($_SESSION['user_id'], $pdo)): ?>
-                    <li><a href="#" data-page="pages/admin.php"><i class="fas fa-user-shield"></i><span>Administrador</span></a></li>
-                <?php endif; ?>
-            </ul>
-        </nav>
+        <!-- CÓDIGO NUEVO (CORRECTO) -->
+<nav>
+    <ul>
+        <li><a href="#" data-page="dashboard"><i class="fas fa-home"></i><span>Tablero</span></a></li>
+        <li><a href="#" data-page="mi_cuenta"><i class="fas fa-user"></i><span>Mi cuenta</span></a></li>
+        <li><a href="#" data-page="mis_telefonos"><i class="fas fa-phone"></i><span>Mis teléfonos</span></a></li>
+        <li><a href="#" data-page="desarrolladores"><i class="fas fa-code"></i><span>Desarrolladores</span></a></li>
+        <?php if (isAdmin($_SESSION['user_id'], $pdo)): ?>
+            <li><a href="#" data-page="admin"><i class="fas fa-user-shield"></i><span>Administrador</span></a></li>
+        <?php endif; ?>
+    </ul>
+</nav>
         <div class="bottom-section">
             <div class="theme-toggle">
                 <i class="fas fa-moon"></i>
@@ -80,7 +81,7 @@ $faviconPath = "img/small.png";
             <div class="separator"></div>
             <div class="logout">
                 <span id="logout-link">
-                <i class="fas fa-sign-out-alt" id="logout-icon"></i><a href="/logout">Cerrar sesión</a> <!-- ajustado para la URL amigable -->
+                <i class="fas fa-sign-out-alt" id="logout-icon"></i><a href="logout">Cerrar sesión</a> <!-- ajustado para la URL amigable -->
                 </span>
             </div>
         </div>

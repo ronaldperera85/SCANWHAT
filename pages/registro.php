@@ -1,5 +1,13 @@
 <?php
 session_start();
+
+if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+    // Si el usuario YA ha iniciado sesión, no tiene sentido que se registre.
+    // Lo redirigimos al menú principal.
+    header("Location: menu");
+    exit();
+}
+
 include '../db/conexion.php'; // Asegúrate que esta ruta es correcta desde registro.php
 
 // Si la solicitud es POST Y se esperan datos de registro
@@ -40,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['email']) || isset($_
             ]);
 
             // 4. Devolver JSON de éxito con la URL de redirección
-            echo json_encode(['success' => true, 'message' => "Registro exitoso. Serás redirigido al inicio de sesión.", 'redirect' => '/login']); 
+            echo json_encode(['success' => true, 'message' => "Registro exitoso. Serás redirigido al inicio de sesión.", 'redirect' => 'login']); 
             exit;
         }
     } catch (PDOException $e) {
@@ -49,7 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['email']) || isset($_
         exit;
     }
 }
-// Si NO es un POST (o es un POST sin datos), se muestra el HTML de registro
+// Definir la ruta al favicon (ajusta la ruta si es necesario)
+$faviconPath = "./img/small.png";
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -57,8 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['email']) || isset($_
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCANWHAT</title>
-    <link rel="icon" href="/img/small.png" type="image/x-icon">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="./img/small.png" type="image/x-icon">
+    <link rel="stylesheet" href="./css/style.css">
         <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="SCANWHAT" />
     <meta property="og:description" content="¡Conecta al Instante!" />
@@ -75,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['email']) || isset($_
 <div class="login-container">
     <div class="card">
         <div class="logo-container">
-            <img src="/img/logo.png" alt="Logo de ScanWhat">
+            <img src="./img/logo.png" alt="Logo de ScanWhat">
         </div>
         <h2>Registro de Usuario</h2>
         
@@ -102,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['email']) || isset($_
             <button type="submit" class="btn btn-primary">Registrarse</button>
         </form>
         <div class="register-link">
-            ¿Ya tienes una cuenta? <a href="/login">Inicia sesión aquí</a>
+            ¿Ya tienes una cuenta? <a href="login">Inicia sesión aquí</a>
         </div>
     </div>
 </div>

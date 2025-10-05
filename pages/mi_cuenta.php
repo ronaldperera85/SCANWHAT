@@ -1,5 +1,13 @@
 <?php
-session_start(); // Agregar esta línea
+session_start();
+
+// Bloque de protección con redirección
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    // Si no ha iniciado sesión, lo redirigimos a la página de login.
+    header("Location: login"); // <-- ¡La línea clave!
+    exit(); // Detener la ejecución del script.
+}
+
 include '../db/conexion.php';
 
 $message = "";

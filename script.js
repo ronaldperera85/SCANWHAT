@@ -33,29 +33,32 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Cargar contenido de la página
-    function loadContent(page) {
-        fetch(page)
-            .then(response => response.text())
-            .then(data => {
-                contentPlaceholder.innerHTML = data;
-                initEventListeners();
-                initRegisterPhoneFormListener();
-                initChangePasswordFormListener();  // Ensure the listener is initialized after content loads
-                if (page === 'pages/admin.php') {
-                    initTokenToggle();
-                }
-            })
-            .catch(error => {
-                console.error('Error loading content:', error);
-                contentPlaceholder.innerHTML = '<p>Error al cargar el contenido.</p>';
-            });
-    }
+    function loadContent(pageName) {
+    // Construimos la ruta física que solo el servidor necesita conocer
+    const physicalPath = `pages/${pageName}.php`; 
+
+    fetch(physicalPath) // Usamos la ruta construida
+        .then(response => response.text())
+        .then(data => {
+            contentPlaceholder.innerHTML = data;
+            initEventListeners();
+            initRegisterPhoneFormListener();
+            initChangePasswordFormListener();
+            if (pageName === 'admin') { // Comparamos con el nombre limpio
+                initTokenToggle();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading content:', error);
+            contentPlaceholder.innerHTML = '<p>Error al cargar el contenido.</p>';
+        });
+}
 
     function initEventListeners() {
         const addPhoneButton = document.getElementById('add-phone');
         if (addPhoneButton) {
             addPhoneButton.addEventListener('click', () => {
-                loadContent('pages/registrar_telefono.php');
+                loadContent('registrar_telefono');
             });
         }
 
@@ -80,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 this.parentNode.appendChild(loadingIndicator);
 
                 try {
-                    const response = await fetch('pages/mis_telefonos.php', {
+                    const response = await fetch('mis_telefonos', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
@@ -92,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
 
                     if (response.ok) {
-                        loadContent('pages/mis_telefonos.php');
+                        loadContent('mis_telefonos');
                     } else {
                         console.error("Error en la solicitud connect:", await response.text());
                         Swal.fire({
@@ -140,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         this.textContent = 'Cerrando Sesión...';
 
                         try {
-                            const disconnectResponse = await fetch('pages/mis_telefonos.php', {
+                            const disconnectResponse = await fetch('mis_telefonos', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                                 body: new URLSearchParams({
@@ -150,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             });
 
                             if (disconnectResponse.ok) {
-                                loadContent('pages/mis_telefonos.php');
+                                loadContent('mis_telefonos');
                             } else {
                                 console.error("Error al desconectar:", await disconnectResponse.text());
                                 Swal.fire({
@@ -296,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 registerPhoneResponse.innerHTML += ' Envíando solicitud...';
 
                 try {
-                    const response = await fetch('pages/registrar_telefono.php', {
+                    const response = await fetch('registrar_telefono', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'
@@ -317,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         volverBtn.textContent = 'Volver a Mis Teléfonos';
                         volverBtn.className = 'btn btn-primary';
                         volverBtn.addEventListener('click', function() {
-                            loadContent('pages/mis_telefonos.php');
+                            loadContent('mis_telefonos');
                         });
                         registerPhoneResponse.appendChild(volverBtn);
                     } else {
@@ -367,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     formData.append('new_password', newPassword);
                     formData.append('confirm_password', confirmPassword);
 
-                    const response = await fetch('pages/mi_cuenta.php', {
+                    const response = await fetch('mi_cuenta', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'
@@ -443,11 +446,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Cargar la página inicial
-    loadContent('pages/dashboard.php');
+    loadContent('dashboard');
 
     // Asignar clase activa al enlace de dashboard
     navLinks.forEach(link => link.classList.remove('active'));
-    document.querySelector('a[data-page="pages/dashboard.php"]').classList.add('active');
+    document.querySelector('a[data-page="dashboard"]').classList.add('active');
 
     // Evento para navegación
     navLinks.forEach(link => {
@@ -462,7 +465,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Evento de cierre de sesión
     if (logoutIcon) {
         logoutIcon.addEventListener('click', function () {
-            window.location.href = 'pages/logout.php';
+            window.location.href = 'logout';
         });
     }
 
