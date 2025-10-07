@@ -98,11 +98,11 @@ try {
     </div>
 
     <div class="card">
-        <h2><i class="fas fa-cog"></i> Instrucciones para ajustes dentro de <strong>ICAROSoft</strong></h2>
+        <h2><i class="fas fa-cog"></i> Instrucciones para implementar en Helpdesk de <strong>ICAROSoft</strong></h2>
         <p> </p>
-        <p>- Para Masivos y Notificaciones (url): Mensajeria > WhatsApp > Perfiles Api</p>        
+        <p>- (Url) para el campo de Envío: Configuración > Mensajería > Perfiles / Api - Token WhatsApp > Perfil de Envío</p>        
         <div class="url-wrap"><?php echo htmlspecialchars($apiSendChatUrl); ?></div>
-        <p>- Para Helpdesk (Base Url): Soporte Técnico > Helpdesk > Configuración > Api Token</p>
+        <p>- (Base Url) para el campo de Recepción: Configuración > Mensajería > Perfiles / Api - Token WhatsApp > Perfil de Recepción</p>
         <div class="url-wrap" style="margin-top:15px;"><?php echo htmlspecialchars($apiHelpdeskUrl); ?></div>
     </div>
 </div>
