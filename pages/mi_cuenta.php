@@ -48,14 +48,24 @@ try {
             $userData = $stmt->fetch(PDO::FETCH_ASSOC);
 
              if ($userData) {
+/*
                 // VERIFICAR CONTRASEÑA EN TEXTO PLANO (RIESGOSO)
                 if ($oldPassword === $userData['password']) { // <-- ¡CAMBIO AQUÍ!
                     // GUARDAR LA NUEVA CONTRASEÑA EN TEXTO PLANO (RIESGOSO)
                     $newPasswordPlain = $newPassword; // Usar la nueva contraseña en texto plano
 
                     // Actualizar la contraseña
+*/                  
+                if (password_verify($oldPassword, $userData['password'])) { // <-- ¡CAMBIO AQUÍ!
+                    // Hashear la nueva contraseña antes de guardarla
+                    
+                    $newPasswordHashed = password_hash($newPassword, PASSWORD_DEFAULT);
                     $stmt = $pdo->prepare("UPDATE usuarios SET password = :password WHERE id = :user_id");
+/*
                     $stmt->execute(['password' => $newPasswordPlain, 'user_id' => $_SESSION['user_id']]);
+*/
+                    // Hashear la nueva contraseña antes de guardarla
+                    $stmt->execute(['password' => $newPasswordHashed, 'user_id' => $_SESSION['user_id']]); // <-- ¡CAMBIO AQUÍ!
 
                     echo json_encode(['success' => true, 'message' => "Contraseña actualizada con éxito."]);
                     exit;

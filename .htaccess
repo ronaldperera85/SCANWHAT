@@ -1,20 +1,30 @@
 RewriteEngine On
-RewriteBase /scanwhat/
+RewriteBase /scanwhat/  
+# ^^^^^^^^^^^^^^^ (Cambiar a / cuando suba a la raíz del dominio web)
 
-# Excepción: La URL "/menu" debe cargar la plantilla principal "index.php"
+# --- REGLAS DE SEGURIDAD Y SSL ---
+# Exclusión para el ACME challenge de Let's Encrypt/SSL
+RewriteRule ^\.well-known/acme-challenge/ - [L]
+
+# Impedir el acceso directo a la carpeta db/
+RewriteRule ^db/ - [F] 
+# (Asumo que el archivo db/conexion.php está en esa carpeta)
+
+# --- REGLAS DE ENRUTAMIENTO ---
+
+# 1. Redirigir el acceso a la raíz del sitio/subdirectorio a /menu
+RewriteRule ^$ menu [R=301,L]
+
+# 2. Excepción: /menu debe cargar index.php (El dashboard principal)
 RewriteRule ^menu/?$ index.php [L]
 
-# 1. Redirige el acceso directo a archivos .php a su URL limpia
-# Ejemplo: /scanwhat/pages/login.php -> /scanwhat/login
+# 3. Regla de limpieza (Redirecciona de /pages/file.php a /file)
+# Esto asegura que las URLs en el navegador sean siempre limpias.
 RewriteCond %{THE_REQUEST} \s/pages/([^\s.]+)\.php [NC]
-RewriteRule ^ %1 [R=301,L]
+RewriteRule ^pages/([^\s.]+)\.php$ %1 [R=301,L]
 
-# 2. Reescritura interna de URLs limpias al archivo .php correspondiente en /pages
-# Esto aplica a /login, /registro, /dashboard, etc.
+# 4. Regla genérica de enrutamiento (Interna: /file -> pages/file.php)
+# Maneja login, registro, logout, etc.
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^([\w-]+)/?$ pages/$1.php [L]
-
-# 3. Regla para la raíz: Si alguien entra a /scanwhat/, lo redirige a /menu
-RewriteCond %{REQUEST_URI} ^/scanwhat/?$
-RewriteRule ^$ menu [R=301,L]

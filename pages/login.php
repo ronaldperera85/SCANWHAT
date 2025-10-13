@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['email']) || isset($_
         $stmt = $pdo->prepare("SELECT id, nombre, password FROM usuarios WHERE email = :email");
         $stmt->execute(['email' => $email]);
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-
+/*
         // Compara contraseñas
         if ($usuario && $password === $usuario['password']) {
             // Credenciales correctas, iniciar sesión
@@ -37,6 +37,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['email']) || isset($_
             echo json_encode(['success' => false, 'message' => "Credenciales incorrectas."]);
             exit;
         }
+*/
+  // ==========================================================
+        //  AQUÍ ESTÁ LA MEJORA: USAR password_verify
+        // ==========================================================
+        if ($usuario && password_verify($password, $usuario['password'])) {
+            
+            // Credenciales correctas, iniciar sesión
+            $_SESSION['user_id'] = $usuario['id'];
+            $_SESSION['user_name'] = $usuario['nombre'];
+            
+            // Devolver JSON de éxito con la URL de redirección
+            echo json_encode(['success' => true, 'redirect' => 'menu']); 
+            exit;
+            
+        } else {
+            // Devolver JSON: Credenciales incorrectas
+            echo json_encode(['success' => false, 'message' => "Credenciales incorrectas."]);
+            exit;
+        }
+        // ==========================================================
     } catch (PDOException $e) {
         // Error de base de datos
         echo json_encode(['success' => false, 'message' => "Error de base de datos: " . $e->getMessage()]);

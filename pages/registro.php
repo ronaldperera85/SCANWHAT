@@ -38,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['email']) || isset($_
             echo json_encode(['success' => false, 'message' => "El correo ya está registrado."]);
             exit;
         } else {
+/*
             // 3. Registrar al usuario
             // Usamos $password en texto plano según tu código, aunque se recomienda hashing
             $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, email, password) VALUES (:nombre, :email, :password)");
@@ -46,7 +47,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['email']) || isset($_
                 'email' => $email,
                 'password' => $password,
             ]);
-
+*/
+            // ==========================================================
+            //  IMPLEMENTACIÓN DE HASHING (SEGURIDAD)
+            // ==========================================================
+            
+            // Hashing de la contraseña con el algoritmo por defecto (bcrypt, el más seguro)
+            $password_hasheado = password_hash($password, PASSWORD_DEFAULT);
+            
+            // 3. Registrar al usuario usando el hash
+            $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, email, password) VALUES (:nombre, :email, :password_hash)");
+            $stmt->execute([
+                'nombre' => $nombre,
+                'email' => $email,
+                'password_hash' => $password_hasheado, // <-- Insertamos el hash
+            ]);
             // 4. Devolver JSON de éxito con la URL de redirección
             echo json_encode(['success' => true, 'message' => "Registro exitoso. Serás redirigido al inicio de sesión.", 'redirect' => 'login']); 
             exit;
