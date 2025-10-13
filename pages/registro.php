@@ -38,16 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['email']) || isset($_
             echo json_encode(['success' => false, 'message' => "El correo ya está registrado."]);
             exit;
         } else {
-/*
-            // 3. Registrar al usuario
-            // Usamos $password en texto plano según tu código, aunque se recomienda hashing
-            $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, email, password) VALUES (:nombre, :email, :password)");
-            $stmt->execute([
-                'nombre' => $nombre,
-                'email' => $email,
-                'password' => $password,
-            ]);
-*/
             // ==========================================================
             //  IMPLEMENTACIÓN DE HASHING (SEGURIDAD)
             // ==========================================================
@@ -83,7 +73,11 @@ $faviconPath = "./img/small.png";
     <title>SCANWHAT</title>
     <link rel="icon" href="./img/small.png" type="image/x-icon">
     <link rel="stylesheet" href="./css/style.css">
-        <!-- Open Graph Meta Tags -->
+    
+    <!-- AÑADIR FONT AWESOME AQUÍ -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+
+    <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="SCANWHAT" />
     <meta property="og:description" content="¡Conecta al Instante!" />
     <meta property="og:image" content="https://scanwhat.icarosoft.com/img/logo.png" />
@@ -103,50 +97,74 @@ $faviconPath = "./img/small.png";
         </div>
         <h2>Registro de Usuario</h2>
         
-        <!-- ELIMINAMOS EL BLOQUE DE ERRORES PHP/HTML ANTIGUO -->
-        
-        <!-- Añadir ID al formulario y novalidate. Quitar method="POST" -->
         <form id="registerForm" novalidate>
+            <!-- CAMPO: NOMBRE COMPLETO -->
             <div class="form-group">
                 <label for="nombre">Nombre Completo:</label>
-                <!-- Nombre es opcional para autocomplete, pero 'name' a veces ayuda -->
-                <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Ingrese su nombre" required autocomplete="name">
+                <div class="input-icon-group">
+                    <i class="fas fa-user icon"></i> 
+                    <input type="text" 
+                           id="nombre" 
+                           name="nombre" 
+                           class="form-control" 
+                           placeholder="Ingrese su nombre" 
+                           required 
+                           autocomplete="name">
+                </div>
             </div>
+            
+            <!-- CAMPO: CORREO ELECTRÓNICO -->
             <div class="form-group">
                 <label for="email">Correo Electrónico:</label>
-                <input type="email" 
-                       id="email" 
-                       name="email" 
-                       class="form-control" 
-                       placeholder="Ingrese su correo" 
-                       required 
-                       autocomplete="username"> 
-                       <!-- ¡CAMBIO CLAVE 1! -->
+                <div class="input-icon-group">
+                    <i class="fas fa-envelope icon"></i> <!-- Icono de correo -->
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           class="form-control" 
+                           placeholder="Ingrese su correo" 
+                           required 
+                           autocomplete="username"> 
+                </div>
             </div>
+            
+            <!-- CAMPO: CONTRASEÑA -->
             <div class="form-group">
                 <label for="password">Contraseña:</label>
-                <input type="password" 
-                       id="password" 
-                       name="password" 
-                       class="form-control" 
-                       placeholder="Cree una contraseña" 
-                       required 
-                       autocomplete="new-password"> 
-                       <!-- ¡CAMBIO CLAVE 2! -->
+                <div class="input-icon-group">
+                    <i class="fas fa-lock icon"></i> 
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           class="form-control" 
+                           placeholder="Cree una contraseña" 
+                           required 
+                           autocomplete="new-password"> 
+                </div>
             </div>
+            
+            <!-- CAMPO: CONFIRMAR CONTRASEÑA -->
             <div class="form-group">
                 <label for="confirm_password">Confirmar Contraseña:</label>
-                <input type="password" 
-                       id="confirm_password" 
-                       name="confirm_password" 
-                       class="form-control" 
-                       placeholder="Confirme su contraseña" 
-                       required 
-                       autocomplete="new-password"> 
-                       <!-- ¡CAMBIO CLAVE 3! -->
+                <div class="input-icon-group">
+                    <i class="fas fa-lock icon"></i> 
+                    <input type="password" 
+                           id="confirm_password" 
+                           name="confirm_password" 
+                           class="form-control" 
+                           placeholder="Confirme su contraseña" 
+                           required 
+                           autocomplete="new-password"> 
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary">Registrarse</button>
+            
+            <!-- BOTÓN DE REGISTRO CON ICONO Y SPAN -->
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i> <!-- Icono para registrar/añadir usuario -->
+                <span id="buttonText">Registrarse</span>
+            </button>
         </form>
+        
         <div class="register-link">
             ¿Ya tienes una cuenta? <a href="login">Inicia sesión aquí</a>
         </div>
@@ -160,13 +178,16 @@ $faviconPath = "./img/small.png";
         
         if (registerForm) {
             registerForm.addEventListener('submit', async function(event) {
-                event.preventDefault(); // Evita el envío tradicional y la recarga de página
+                event.preventDefault();
 
                 const nombre = document.getElementById('nombre').value;
                 const email = document.getElementById('email').value;
                 const password = document.getElementById('password').value;
                 const confirmPassword = document.getElementById('confirm_password').value;
                 const submitButton = registerForm.querySelector('button[type="submit"]');
+                
+                // Referencia al span para modificar solo el texto
+                const buttonText = document.getElementById('buttonText');
 
                 if (!nombre || !email || !password || !confirmPassword) {
                     Swal.fire({
@@ -187,10 +208,11 @@ $faviconPath = "./img/small.png";
                 }
 
                 // Mostrar estado de carga en el botón
-                const originalText = submitButton.textContent;
+                const originalText = buttonText.textContent; // Guardamos solo el texto
                 submitButton.disabled = true;
-                submitButton.textContent = 'Registrando...';
+                buttonText.textContent = 'Registrando...'; // Modificamos solo el texto
 
+                let data; // Definir data aquí para que esté disponible en el finally
                 try {
                     const formData = new URLSearchParams();
                     formData.append('nombre', nombre);
@@ -207,7 +229,7 @@ $faviconPath = "./img/small.png";
                         body: formData
                     });
                     
-                    const data = await response.json(); 
+                    data = await response.json(); 
                     
                     if (data.success) {
                         // Éxito: Muestra SweetAlert y redirige al login
@@ -236,10 +258,11 @@ $faviconPath = "./img/small.png";
                         text: 'Ocurrió un error de red al intentar registrarte. Inténtalo de nuevo.',
                     });
                 } finally {
-                    // Restaura el botón solo en caso de error
-                    if (!data.success) {
+                    // Restaura el botón solo si no fue un éxito total (para que no se restaure
+                    // mientras el SweetAlert está mostrando el éxito antes de la redirección)
+                    if (!data || !data.success) {
                         submitButton.disabled = false;
-                        submitButton.textContent = originalText;
+                        buttonText.textContent = originalText;
                     }
                 }
             });

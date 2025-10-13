@@ -74,6 +74,10 @@ $faviconPath = "./img/small.png";
     <title>SCANWHAT</title>
     <link rel="icon" href="./img/small.png" type="image/x-icon">
     <link rel="stylesheet" href="./css/style.css">
+    
+    <!-- Nuevo: INCLUIR FONT AWESOME PARA LOS ICONOS (USUARIO Y CANDADO) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="SCANWHAT" />
     <meta property="og:description" content="¡Conecta al Instante!" />
@@ -93,33 +97,44 @@ $faviconPath = "./img/small.png";
             </div>
             <h2>Iniciar Sesión</h2>
             
-            <!-- IMPORTANTE: ELIMINA CUALQUIER BLOQUE PHP QUE MUESTRE $error -->
-            
-            <!-- Añadir ID al formulario y novalidate. Quitar method="POST" para evitar envío tradicional si JS falla -->
             <form id="loginForm" novalidate>
                 <div class="form-group">
                     <label for="email">Correo Electrónico:</label>
-                    <input type="email" 
-                           id="email" 
-                           name="email" 
-                           class="form-control" 
-                           placeholder="Ingrese su correo" 
-                           required 
-                           autocomplete="username"> 
-                           <!-- ^^^^ ¡CAMBIO AQUÍ! (Para el gestor de contraseñas) -->
+                    
+                    <!-- Contenedor para el icono y el input -->
+                    <div class="input-icon-group">
+                        <i class="fas fa-user icon"></i> 
+                        <input type="email" 
+                               id="email" 
+                               name="email" 
+                               class="form-control" 
+                               placeholder="Ingrese su correo" 
+                               required 
+                               autocomplete="username"> 
+                    </div>
                 </div>
+                
                 <div class="form-group">
                     <label for="password">Contraseña:</label>
-                    <input type="password" 
-                           id="password" 
-                           name="password" 
-                           class="form-control" 
-                           placeholder="Ingrese su contraseña" 
-                           required 
-                           autocomplete="current-password">
-                           <!-- ^^^^ ¡CAMBIO AQUÍ! (Para la contraseña actual) -->
+                    
+                    <!-- Contenedor para el icono y el input -->
+                    <div class="input-icon-group">
+                        <i class="fas fa-lock icon"></i>
+                        <input type="password" 
+                               id="password" 
+                               name="password" 
+                               class="form-control" 
+                               placeholder="Ingrese su contraseña" 
+                               required 
+                               autocomplete="current-password">
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Entrar</button>
+
+                <!-- CAMBIO CLAVE: Icono y texto envuelto en span para manipulación JS -->
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> 
+                    <span id="buttonText">Entrar</span>
+                </button>
             </form>
             <div class="register-link">
                 ¿No tienes una cuenta? <a href="registro">Regístrate aquí</a>
@@ -134,11 +149,14 @@ $faviconPath = "./img/small.png";
             
             if (loginForm) {
                 loginForm.addEventListener('submit', async function(event) {
-                    event.preventDefault(); // <--- CLAVE PARA EVITAR EL ENVÍO TRADICIONAL
+                    event.preventDefault();
 
                     const email = document.getElementById('email').value;
                     const password = document.getElementById('password').value;
                     const submitButton = loginForm.querySelector('button[type="submit"]');
+                    
+                    // Obtenemos referencia al texto dentro del botón
+                    const buttonText = document.getElementById('buttonText'); 
 
                     if (!email || !password) {
                         Swal.fire({
@@ -149,9 +167,9 @@ $faviconPath = "./img/small.png";
                         return;
                     }
 
-                    const originalText = submitButton.textContent;
+                    const originalText = buttonText.textContent; // Guarda solo "Entrar"
                     submitButton.disabled = true;
-                    submitButton.textContent = 'Verificando...';
+                    buttonText.textContent = 'Verificando...'; // Solo cambia el texto, no el icono
 
                     try {
                         const formData = new URLSearchParams();
@@ -195,7 +213,7 @@ $faviconPath = "./img/small.png";
                         });
                     } finally {
                         submitButton.disabled = false;
-                        submitButton.textContent = originalText;
+                        buttonText.textContent = originalText; // Restaura solo el texto
                     }
                 });
             }
