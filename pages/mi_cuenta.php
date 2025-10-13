@@ -166,7 +166,7 @@ try {
                 <!-- Botón de acción con span para proteger el icono -->
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> 
-                    <span id="changeButtonText">Cambiar Contraseña</span>
+                    <span id="changeButtonText">Cambiar Credenciales</span>
                 </button>
                 <div id="changePasswordResponse"></div>
             </form>
