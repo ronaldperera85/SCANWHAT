@@ -77,7 +77,7 @@ $faviconPath = "./img/small.png";
     <meta property="og:site_name" content="SCANWHAT" />
     <meta property="og:locale" content="es_ES" />
     <!-- INCLUIR SWEETALERT2 CDN AQUÍ -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
 </head>
 <body>
 
