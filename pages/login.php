@@ -94,7 +94,9 @@ $faviconPath = "./img/small.png";
         <div class="card">
             <div class="logo-container">
                 <img src="./img/logo.png" alt="Logo de ScanWhat">
+                <p class="subtitle-gray">¡Conecta al Instante!</p>
             </div>
+            
             <h2>Iniciar Sesión</h2>
             
             <form id="loginForm" novalidate>

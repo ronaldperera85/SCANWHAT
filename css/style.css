@@ -79,6 +79,17 @@ th, td {
   border: 1px solid #ddd; /* Añade un borde a las celdas */
 }
 
+/* Color morado para SCAN en el logo */
+.scan-purple {
+  color: #441681;
+  font-weight: bold;
+}
+
+.subtitle-gray {
+  color: #888888;
+  font-weight: 500;
+}
+
 th {
   background-color: #f0f0f0;
   font-weight: bold;

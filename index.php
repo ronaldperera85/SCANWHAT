@@ -52,8 +52,8 @@ $faviconPath = "./img/small.png";
                 <img src="./img/small.png" alt="Logo de ScanWhat">
             </div>
             <div class="codinglab">
-                <p>SCANWHAT</p>
-                <p>¡Conecta al Instante!</p>
+                <p><span class="scan-purple">SCAN</span>WHAT</p>
+                <p class="subtitle-gray">¡Conecta al Instante!</p>
             </div>
             <button class="toggle-btn"><i class="fas fa-angle-left"></i></button>
         </header>
