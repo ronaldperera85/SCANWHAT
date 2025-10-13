@@ -102,17 +102,26 @@ try {
             <h2 style="text-align: center;">Cambiar Contraseña</h2>
             <form id="changePasswordForm" style="text-align: center;" novalidate>
                 <input type="hidden" name="change_password" value="1">
+                <!-- CAMPO OCULTO (TIPO TEXTO PARA MAYOR COMPATIBILIDAD PERO VISUALMENTE OCULTO) -->
+<!-- El navegador lo detecta como campo de "usuario" gracias al autocomplete="username" -->
+                <input type="text" 
+                    name="email" 
+                    id="email" 
+                    style="display:none; visibility:hidden;"
+                    value="<?php echo htmlspecialchars($user['email']); ?>" 
+                    autocomplete="username">
+                
                 <div class="form-group">
                     <label for="old_password">Contraseña Actual:</label>
-                    <input type="password" id="old_password" name="old_password" class="form-control" required>
+                    <input type="password" id="old_password" name="old_password" class="form-control" required autocomplete="current-password">
                 </div>
                 <div class="form-group">
                     <label for="new_password">Nueva Contraseña:</label>
-                    <input type="password" id="new_password" name="new_password" class="form-control" required>
+                    <input type="password" id="new_password" name="new_password" class="form-control" required autocomplete="new-password">
                 </div>
                 <div class="form-group">
                     <label for="confirm_password">Confirmar Nueva Contraseña:</label>
-                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" required autocomplete="new-password">
                 </div>
                 <button type="submit" class="btn btn-primary"><i class="fas fa-key"></i> Cambiar Contraseña</button>
                 <div id="changePasswordResponse"></div>

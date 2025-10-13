@@ -99,11 +99,25 @@ $faviconPath = "./img/small.png";
             <form id="loginForm" novalidate>
                 <div class="form-group">
                     <label for="email">Correo Electrónico:</label>
-                    <input type="email" id="email" name="email" class="form-control" placeholder="Ingrese su correo" required>
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           class="form-control" 
+                           placeholder="Ingrese su correo" 
+                           required 
+                           autocomplete="username"> 
+                           <!-- ^^^^ ¡CAMBIO AQUÍ! (Para el gestor de contraseñas) -->
                 </div>
                 <div class="form-group">
                     <label for="password">Contraseña:</label>
-                    <input type="password" id="password" name="password" class="form-control" placeholder="Ingrese su contraseña" required>
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           class="form-control" 
+                           placeholder="Ingrese su contraseña" 
+                           required 
+                           autocomplete="current-password">
+                           <!-- ^^^^ ¡CAMBIO AQUÍ! (Para la contraseña actual) -->
                 </div>
                 <button type="submit" class="btn btn-primary">Entrar</button>
             </form>

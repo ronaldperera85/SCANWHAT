@@ -109,19 +109,41 @@ $faviconPath = "./img/small.png";
         <form id="registerForm" novalidate>
             <div class="form-group">
                 <label for="nombre">Nombre Completo:</label>
-                <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Ingrese su nombre" required>
+                <!-- Nombre es opcional para autocomplete, pero 'name' a veces ayuda -->
+                <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Ingrese su nombre" required autocomplete="name">
             </div>
             <div class="form-group">
                 <label for="email">Correo Electrónico:</label>
-                <input type="email" id="email" name="email" class="form-control" placeholder="Ingrese su correo" required>
+                <input type="email" 
+                       id="email" 
+                       name="email" 
+                       class="form-control" 
+                       placeholder="Ingrese su correo" 
+                       required 
+                       autocomplete="username"> 
+                       <!-- ¡CAMBIO CLAVE 1! -->
             </div>
             <div class="form-group">
                 <label for="password">Contraseña:</label>
-                <input type="password" id="password" name="password" class="form-control" placeholder="Cree una contraseña" required>
+                <input type="password" 
+                       id="password" 
+                       name="password" 
+                       class="form-control" 
+                       placeholder="Cree una contraseña" 
+                       required 
+                       autocomplete="new-password"> 
+                       <!-- ¡CAMBIO CLAVE 2! -->
             </div>
             <div class="form-group">
                 <label for="confirm_password">Confirmar Contraseña:</label>
-                <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Confirme su contraseña" required>
+                <input type="password" 
+                       id="confirm_password" 
+                       name="confirm_password" 
+                       class="form-control" 
+                       placeholder="Confirme su contraseña" 
+                       required 
+                       autocomplete="new-password"> 
+                       <!-- ¡CAMBIO CLAVE 3! -->
             </div>
             <button type="submit" class="btn btn-primary">Registrarse</button>
         </form>
