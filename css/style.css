@@ -54,6 +54,33 @@
     margin-right: 8px; 
 }
 
+/* Necesario para posicionar el icono dentro del input */
+.input-icon-group {
+    position: relative; 
+    width: 100%;
+}
+
+.input-icon-group .icon {
+    position: absolute;
+    top: 50%;
+    left: 8px; /* Posición horizontal del icono */
+    transform: translateY(-50%);
+    color: #999; 
+    font-size: 16px; 
+    pointer-events: none; 
+    z-index: 10;
+}
+
+/* Ajuste CLAVE: Empujar el texto de entrada hacia la derecha */
+.input-icon-group .form-control {
+    padding-left: 35px; 
+}
+
+/* Espacio entre el icono y el texto del botón (para todos los botones primarios) */
+.btn-primary .fas {
+    margin-right: 8px; 
+}
+
 /* Estilo para el contenedor de SweetAlert2 */
 .swal2-container {
   z-index: 2000; /* Un valor alto */
