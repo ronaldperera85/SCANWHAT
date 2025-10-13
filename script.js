@@ -280,60 +280,92 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function initRegisterPhoneFormListener() {
-        const registerPhoneForm = document.getElementById('registerPhoneForm');
-        if (registerPhoneForm) {
-            registerPhoneForm.addEventListener('submit', async function (event) {
-                event.preventDefault();
+    // REEMPLAZA TU FUNCIÓN ANTIGUA CON ESTA
+function initRegisterPhoneFormListener() {
+    const registerPhoneForm = document.getElementById('registerPhoneForm');
+    
+    // Si el formulario existe en la página cargada...
+    if (registerPhoneForm) {
+        // ...añadimos el listener para el evento 'submit'
+        registerPhoneForm.addEventListener('submit', async function (event) {
+            // ¡Línea clave! Evita que la página se recargue
+            event.preventDefault(); 
 
-                const phoneNumberInput = document.getElementById('numero');
-                const phoneNumber = phoneNumberInput.value;
-                const registerPhoneResponse = document.getElementById('registerPhoneResponse');
+            const phoneNumberInput = document.getElementById('numero');
+            const phoneNumber = phoneNumberInput.value.trim(); // Usamos .trim() para quitar espacios
 
-                if (!validatePhoneNumber(phoneNumber)) {
-                    return;
-                }
+            // 1. PRIMERO, validamos el campo.
+            // La función validatePhoneNumber ya usa SweetAlert, lo cual es correcto.
+            // Si el número está vacío o es inválido, esta función mostrará el SweetAlert y devolverá 'false'.
+            if (!validatePhoneNumber(phoneNumber)) {
+                return; // Detenemos la ejecución aquí
+            }
 
-                 // Mostrar el GIF de carga
-                registerPhoneResponse.innerHTML = '<img src="img/loading.gif" alt="Cargando..." width="50">';
-                registerPhoneResponse.innerHTML += ' Envíando solicitud...';
-
-                try {
-                    const response = await fetch('registrar_telefono', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-                        body: new URLSearchParams({
-                            numero: phoneNumber
-                        })
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        registerPhoneResponse.innerHTML = `<p class="success">${data.message}</p>`;
-                        if (data.qrCode) {
-                            registerPhoneResponse.innerHTML += `<div class="qr-container"><img src="${data.qrCode}" alt="QR Code"></div>`;
-                        }
-                        const volverBtn = document.createElement('button');
-                        volverBtn.textContent = 'Volver a Mis Teléfonos';
-                        volverBtn.className = 'btn btn-primary';
-                        volverBtn.addEventListener('click', function() {
-                            loadContent('mis_telefonos');
-                        });
-                        registerPhoneResponse.appendChild(volverBtn);
-                    } else {
-                        registerPhoneResponse.innerHTML = `<p class="error">${data.message}</p>`;
-                    }
-                    phoneNumberInput.value = '';
-                } catch (error) {
-                    console.error('Error de red:', error);
-                    registerPhoneResponse.innerHTML = `<p class="error">Error de red al registrar el número.</p>`;
+            // 2. SI LA VALIDACIÓN PASA, MOSTRAMOS LA ALERTA DE CARGA
+            Swal.fire({
+                title: 'Generando QR...',
+                text: 'Por favor, espera un momento.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
                 }
             });
-        }
+
+            try {
+                // 3. ENVIAMOS LA SOLICITUD AL SERVIDOR
+                const response = await fetch('registrar_telefono', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                        numero: phoneNumber
+                    })
+                });
+
+                const data = await response.json();
+
+                // 4. PROCESAMOS LA RESPUESTA
+                if (data.success) {
+                    phoneNumberInput.value = ''; // Limpiar el input
+
+                    // ÉXITO: Mostramos el QR en un SweetAlert
+                    Swal.fire({
+                        title: '¡Código QR Generado!',
+                        html: `
+                            <p>${data.message}</p> 
+                            <div class="qr-container" style="margin-top: 15px;">
+                                <img src="${data.qrCode}" alt="QR Code" style="max-width: 100%; height: auto;">
+                            </div>
+                        `,
+                        icon: 'success',
+                        confirmButtonText: 'Volver a Mis Teléfonos'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            loadContent('mis_telefonos');
+                        }
+                    });
+
+                } else {
+                    // ERROR DEL SERVIDOR: Mostramos el error en un SweetAlert
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al Registrar',
+                        text: data.message,
+                    });
+                }
+            } catch (error) {
+                console.error('Error de red o de parseo:', error);
+                // ERROR DE RED: Mostramos el error de conexión en un SweetAlert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de Conexión',
+                    text: 'No se pudo conectar con el servidor. Verifica tu conexión o inténtalo más tarde.',
+                });
+            }
+        });
     }
+}
     
     function initChangePasswordFormListener() {
         const changePasswordForm = document.getElementById('changePasswordForm');

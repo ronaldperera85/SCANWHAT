@@ -10,6 +10,9 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
 
 include '../db/conexion.php';
 
+// =======================================================================
+// ESTE BLOQUE DE CÓDIGO NO NECESITA CAMBIOS
+// =======================================================================
 if (!function_exists('loadEnv')) {
     function loadEnv($envPath) {
         if (!file_exists($envPath)) {
@@ -36,7 +39,14 @@ if (!loadEnv(__DIR__ . '/../.env')) {
 
 $baseUrl = rtrim($_ENV['BACKEND_URL'], '/');
 $apiUrlRegister = $baseUrl . '/api/register';
+// =======================================================================
+// FIN DEL BLOQUE SIN CAMBIOS
+// =======================================================================
 
+
+// =======================================================================
+// INICIO DEL BLOQUE AJUSTADO (SOLO SE EJECUTA EN SOLICITUDES AJAX)
+// =======================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
 
@@ -48,27 +58,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Regular expression for XXXXXXXXXXXX
     if (!preg_match('/^\d{8,15}$/', $numero)) {
-        echo json_encode(['success' => false, 'message' => 'Por favor, ingrese un número de teléfono válido en formato WhatsApp (ej: 584125927917 o 573205649404). Debe comenzar con 584 y tener entre 12 y 13 dígitos.']);
+        echo json_encode(['success' => false, 'message' => 'Por favor, ingrese un número de teléfono válido en formato WhatsApp (ej: 584125927917).']);
         exit;
     }
 
     try {
         $data = [
             'uid' => $numero,
-            'usuario_id' => $_SESSION['user_id'] ?? null // enviar el usuario_id al backend
+            'usuario_id' => $_SESSION['user_id'] ?? null
         ];
 
         $ch = curl_init($apiUrlRegister);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data)); // Envía los datos como JSON
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']); // Indica que estás enviando JSON
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 
         $response = curl_exec($ch);
 
         if (curl_errno($ch)) {
+            // AJUSTE 1: El mensaje de error de cURL ya es texto simple, esto está bien.
             throw new Exception('Error en la conexión: ' . curl_error($ch));
         }
 
@@ -77,34 +87,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $responseData = json_decode($response, true);
 
         if (!$responseData || !isset($responseData['success'])) {
-            throw new Exception('<div class="alert alert-danger">Error al procesar la respuesta del servidor.</div>');
+            // AJUSTE 2: Se elimina el HTML del mensaje de la excepción.
+            throw new Exception('Error al procesar la respuesta del servidor. Respuesta no válida.');
         }
 
         if ($responseData['success']) {
             $qrCode = $responseData['data']['qrCode'] ?? null;
-            $token = $responseData['data']['token'] ?? null;
-            $message = '<div class="alert alert-success">¡Número registrado exitosamente! Escanea este código QR para vincular tu número.</div>';
+            
+            // AJUSTE 3: El mensaje de éxito ahora es texto simple.
+            $message = '¡Número registrado exitosamente! Escanea este código QR para vincular tu número.';
 
-            // Enviar el código QR como parte de la respuesta
             echo json_encode(['success' => true, 'message' => $message, 'qrCode' => $qrCode]);
         } else {
             $errorMessage = $responseData['message'] ?? '¡Número de teléfono ya registrado, intente con otro!';
 
-            echo json_encode(['success' => false, 'message' => '<div class="alert alert-danger">Error: ' . $errorMessage . '</div>']);
+            // AJUSTE 4: El mensaje de error ahora es texto simple.
+            echo json_encode(['success' => false, 'message' => 'Error: ' . $errorMessage]);
         }
 
     } catch (Exception $e) {
+        // AJUSTE 5: Se asegura que la respuesta del catch sea JSON con el mensaje de texto de la excepción.
         echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     }
 
-    exit;
+    exit; // Detiene la ejecución para no renderizar el HTML de abajo.
 }
 ?>
 
+<!-- ======================================================================= -->
+<!-- ESTA PARTE HTML NO CAMBIA. SE MUESTRA AL CARGAR LA PÁGINA NORMALMENTE -->
+<!-- ======================================================================= -->
 <div class="content-container">
     <h1><i class="fas fa-plus-circle"></i> Agregar Nuevo Número</h1>
-    <div id="registerPhoneResponse"></div>
-    <form id="registerPhoneForm">
+    
+    <!-- Este div ya no se usará para mostrar mensajes, pero no molesta dejarlo -->
+    <div id="registerPhoneResponse"></div> 
+    
+    <form id="registerPhoneForm" novalidate> <!-- Añadido 'novalidate' para desactivar validación del navegador -->
         <p></p>
     
         <div class="form-group">
@@ -114,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button type="submit" class="btn btn-primary">Generar QR</button>
     </form>
 
-    <!-- Sección para mostrar el código QR -->
+    <!-- Esta sección ya no es necesaria porque el QR se mostrará en el SweetAlert -->
     <div id="qrCodeSection" style="display:none;">
         <h2>Escanea el código QR con WhatsApp:</h2>
         <img id="qrCodeImage" src="" alt="QR Code">
