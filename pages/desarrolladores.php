@@ -59,10 +59,10 @@ try {
     <div class="card" data-api-send-chat-url="<?php echo htmlspecialchars($apiSendChatUrl); ?>">
         <h2><i class="fas fa-envelope"></i> Prueba de Envío de Mensaje</h2>
         <form id="sendMessageForm" novalidate>
-            <!-- CAMPO MODIFICADO Y REORDENADO: WhatsApp Account UID -->
-            <div>
-                <label for="waAccountSend">WhatsApp Account UID:</label>
-                <select id="waAccountSend" name="waAccountSend" required>
+            <!-- CAMPO: WhatsApp Account UID (SELECT - No lleva icono interno) -->
+            <div class="form-group">
+                <label for="waAccountSend">UID de la cuenta de WhatsApp:</label>
+                <select id="waAccountSend" name="waAccountSend" class="form-control" required>
                     <option value="" disabled selected>-- Seleccione un número --</option>
                     <?php if (empty($telefonos_conectados)): ?>
                         <option value="" disabled>No tienes números conectados</option>
@@ -76,37 +76,57 @@ try {
                 </select>
             </div>
             
-            <!-- CAMPO MODIFICADO Y REORDENADO: API Token -->
-            <div>
-                <label for="apiTokenSend">API Token:</label>
-                <input type="text" id="apiTokenSend" name="apiTokenSend" required readonly placeholder="Se autocompletará al seleccionar un número">
+            <!-- CAMPO: API Token (READONLY - Con input-icon-group) -->
+            <div class="form-group">
+                <label for="apiTokenSend">Token de API:</label>
+                <div class="input-icon-group">
+                    <i class="fas fa-fingerprint icon"></i> 
+                    <input type="text" id="apiTokenSend" name="apiTokenSend" class="form-control" required readonly placeholder="Se autocompletará al seleccionar un número">
+                </div>
             </div>
 
-            <!-- Campos sin cambios -->
-            <div>
-                <label for="recipientAccountSend">Recipient Account:</label>
-                <input type="text" id="recipientAccountSend" name="recipientAccountSend" required placeholder="Ej: 593991234567">
+            <!-- CAMPO: Recipient Account (Con input-icon-group) -->
+            <div class="form-group">
+                <label for="recipientAccountSend">Cuenta del destinatario:</label>
+                <div class="input-icon-group">
+                    <i class="fas fa-phone icon"></i>
+                    <input type="text" id="recipientAccountSend" name="recipientAccountSend" class="form-control" required placeholder="Ej: 593991234567">
+                </div>
             </div>
-            <div>
-                <label for="messageTextSend">Message Text:</label>
-                <textarea id="messageTextSend" name="messageTextSend" rows="3" required placeholder="Mensaje..."></textarea>
+            
+            <!-- CAMPO: Message Text (TEXTAREA - Solo añadimos form-group por consistencia) -->
+            <div class="form-group">
+                <label for="messageTextSend">Texto del mensaje:</label>
+                <textarea id="messageTextSend" name="messageTextSend" class="form-control" rows="3" required placeholder="Mensaje..."></textarea>
             </div>
-            <button type="submit"><i class="fas fa-paper-plane"></i> Enviar Mensaje</button>
+            
+            <!-- Botón de envío con SPAN para proteger el icono -->
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i> 
+                <span id="sendButtonText">Enviar Mensaje</span>
+            </button>
         </form>
         <!-- Contenedor de respuesta con estilos iniciales -->
         <div id="sendMessageResponse" style="margin-top: 15px;"></div>
     </div>
 
     <div class="card">
-        <h2><i class="fas fa-cog"></i> Instrucciones para implementar en Helpdesk de <strong>ICAROSoft</strong></h2>
-        <p> </p>
-        <p>- (Url) para el campo de Envío: Configuración > Mensajería > Perfiles / Api - Token WhatsApp > Perfil de Envío</p>        
-        <div class="url-wrap"><?php echo htmlspecialchars($apiSendChatUrl); ?></div>
-        <p>- (Base Url) para el campo de Recepción: Configuración > Mensajería > Perfiles / Api - Token WhatsApp > Perfil de Recepción</p>
-        <div class="url-wrap" style="margin-top:15px;"><?php echo htmlspecialchars($apiHelpdeskUrl); ?></div>
+    <h2><i class="fas fa-cog"></i> Instrucciones para implementar en Helpdesk de <strong>ICAROSoft</strong></h2>
+    <p> </p>
+    <p>- (Url) para el campo de Envío: Configuración > Mensajería > Perfiles / Api - Token WhatsApp > Perfil de Envío</p>        
+    <div class="url-wrap">
+        <i class="fas fa-link url-icon"></i> <!-- ÍCONO DE ENLACE -->
+        <span><?php echo htmlspecialchars($apiSendChatUrl); ?></span>
+    </div>
+    <p>- (Base Url) para el campo de Recepción: Configuración > Mensajería > Perfiles / Api - Token WhatsApp > Perfil de Recepción</p>
+    <div class="url-wrap" style="margin-top:15px;">
+        <i class="fas fa-link url-icon"></i> <!-- ÍCONO DE ENLACE -->
+        <span><?php echo htmlspecialchars($apiHelpdeskUrl); ?></span>
     </div>
 </div>
+</div>
 
+<!-- Estilos (Si este código no está dentro de tu <head> y ya tienes el CSS cargado, puedes eliminar esta sección <style>) -->
 <style>
 /* Tus estilos existentes con algunas mejoras */
 .card {
@@ -181,3 +201,90 @@ try {
 /* IMPORTANTE: Hemos ELIMINADO la regla 'body.dark-theme .url-wrap' 
    para que se mantenga blanco en ambos modos. */
 </style>
+
+<!-- Script para el formulario de prueba de envío de mensaje -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sendMessageForm = document.getElementById('sendMessageForm');
+        
+        if (sendMessageForm) {
+            sendMessageForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
+
+                const submitButton = sendMessageForm.querySelector('button[type="submit"]');
+                const buttonText = document.getElementById('sendButtonText'); 
+                const responseContainer = document.getElementById('sendMessageResponse');
+
+                const originalText = buttonText.textContent;
+                submitButton.disabled = true;
+                buttonText.textContent = 'Enviando...';
+                responseContainer.innerHTML = ''; // Limpiar respuesta anterior
+
+                // Recolección de datos
+                const waAccount = document.getElementById('waAccountSend').value;
+                const apiToken = document.getElementById('apiTokenSend').value;
+                const recipientAccount = document.getElementById('recipientAccountSend').value;
+                const messageText = document.getElementById('messageTextSend').value;
+
+                // Simple Validación (Cliente)
+                if (!waAccount || !apiToken || !recipientAccount || !messageText) {
+                    responseContainer.innerHTML = '<p class="error">Por favor, complete todos los campos.</p>';
+                    submitButton.disabled = false;
+                    buttonText.textContent = originalText;
+                    return;
+                }
+                
+                // === Lógica de envío (AJAX / Fetch) ===
+                try {
+                    const apiSendChatUrl = sendMessageForm.closest('.card').getAttribute('data-api-send-chat-url');
+                    
+                    const formData = new URLSearchParams();
+                    formData.append('waAccount', waAccount);
+                    formData.append('token', apiToken); // Asegúrate de que tu API espera 'token' o 'apiToken'
+                    formData.append('recipient', recipientAccount);
+                    formData.append('message', messageText);
+
+                    // Envío real (Ajustar según cómo espera tu backend los datos)
+                    const response = await fetch(apiSendChatUrl, { 
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: formData
+                    });
+                    
+                    const data = await response.json(); 
+
+                    if (data.success) {
+                        responseContainer.innerHTML = `<p class="success">Éxito: ${data.message}</p>`;
+                    } else {
+                        responseContainer.innerHTML = `<p class="error">Error: ${data.message || 'Error desconocido del servidor.'}</p>`;
+                    }
+                    
+                } catch (error) {
+                    console.error('Error de red o de servidor:', error);
+                    responseContainer.innerHTML = '<p class="error">Error de Conexión: Ocurrió un error de red o la URL API es inaccesible.</p>';
+                } finally {
+                    submitButton.disabled = false;
+                    buttonText.textContent = originalText;
+                }
+            });
+        }
+
+        // Script para auto-completar el token al seleccionar el número
+        const waAccountSelect = document.getElementById('waAccountSend');
+        const apiTokenInput = document.getElementById('apiTokenSend');
+
+        if (waAccountSelect && apiTokenInput) {
+            waAccountSelect.addEventListener('change', function() {
+                // Asegúrate de que el input tenga la clase form-control para que el CSS funcione
+                apiTokenInput.classList.add('form-control');
+                
+                const selectedOption = waAccountSelect.options[waAccountSelect.selectedIndex];
+                const token = selectedOption.getAttribute('data-token');
+                apiTokenInput.value = token ? token : '';
+            });
+        }
+    });
+
+</script>

@@ -1,3 +1,7 @@
+/* ------------------------------------------- */
+/* ESTILOS UNIFICADOS PARA INPUTS CON ICONOS */
+/* ------------------------------------------- */
+
 /* Contenedor para posicionar el icono */
 .input-icon-group {
     position: relative;
@@ -8,8 +12,7 @@
 .input-icon-group .icon {
     position: absolute;
     top: 50%;
-    /* Mueve el icono un poco más a la izquierda (5px o 8px es típico) */
-    left: 8px; 
+    left: 8px; /* Posición horizontal del icono */
     transform: translateY(-50%);
     color: #999; 
     font-size: 16px; 
@@ -20,60 +23,6 @@
 /* Ajuste CLAVE: Empujar el texto de entrada hacia la derecha */
 .input-icon-group .form-control {
     padding-left: 35px !important; 
-}
-
-/* Estilo para el botón primario con icono */
-.btn-primary .fas {
-    margin-right: 8px; /* Espacio entre el icono y la palabra */
-}
-
-/* Necesario para posicionar el icono dentro del input */
-.input-icon-group {
-    position: relative; 
-    width: 100%;
-}
-
-.input-icon-group .icon {
-    position: absolute;
-    top: 50%;
-    left: 8px; /* Posición horizontal del icono */
-    transform: translateY(-50%);
-    color: #999; 
-    font-size: 16px; 
-    pointer-events: none; 
-    z-index: 10;
-}
-
-/* Ajuste CLAVE: Empujar el texto de entrada hacia la derecha */
-.input-icon-group .form-control {
-    padding-left: 35px; 
-}
-
-/* Espacio entre el icono y el texto del botón */
-.btn-primary .fas {
-    margin-right: 8px; 
-}
-
-/* Necesario para posicionar el icono dentro del input */
-.input-icon-group {
-    position: relative; 
-    width: 100%;
-}
-
-.input-icon-group .icon {
-    position: absolute;
-    top: 50%;
-    left: 8px; /* Posición horizontal del icono */
-    transform: translateY(-50%);
-    color: #999; 
-    font-size: 16px; 
-    pointer-events: none; 
-    z-index: 10;
-}
-
-/* Ajuste CLAVE: Empujar el texto de entrada hacia la derecha */
-.input-icon-group .form-control {
-    padding-left: 35px; 
 }
 
 /* Espacio entre el icono y el texto del botón (para todos los botones primarios) */
@@ -200,9 +149,41 @@ cursor: pointer;
   overflow-wrap: break-word;
 }
 
+/* Estilo para las URLs, ahora imitando a los inputs */
 .url-wrap {
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+    display: flex; /* Nuevo: Permite alinear el icono y el texto */
+    align-items: flex-start; /* Alinea los ítems al inicio (arriba) */
+    
+    /* Propiedades copiadas de los inputs para consistencia */
+    width: 100%;
+    padding: 8px;
+    padding-left: 10px; /* Padding izquierdo reducido, ya que el icono no es "flotante" */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box; 
+    background-color: #fff;
+    color: #1a1a2e;            
+    
+    /* Propiedades específicas para la URL */
+    font-family: monospace;
+    font-size: 0.9em;
+    word-break: break-all;
+    margin: 0;
+    font-weight: normal; 
+}
+
+/* Estilo para el icono dentro del URL wrap */
+.url-wrap .url-icon {
+    color: #7c5dfa; /* O #999, si quieres que sea gris como los inputs */
+    font-size: 1em;
+    margin-right: 8px; /* Espacio entre el icono y la URL */
+    min-width: 1em; /* Asegura que el icono tenga un espacio mínimo si la URL es muy larga */
+}
+
+/* El texto que envuelve la URL debe ocupar el espacio restante */
+.url-wrap span {
+    flex-grow: 1;
+    word-break: break-all;
 }
 
 .alert {
