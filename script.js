@@ -57,33 +57,57 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         document.querySelectorAll('.connect-btn').forEach(button => {
-            button.addEventListener('click', async function () {
-                const phoneNumber = this.getAttribute('data-phone-number');
-                if (!phoneNumber) {
-                    Swal.fire({ icon: 'error', title: 'Error!', text: 'No se pudo obtener el número de teléfono.' });
-                    return;
-                }
-                this.disabled = true;
-                this.textContent = 'Conectando...';
+    button.addEventListener('click', async function () {
+        const phoneNumber = this.getAttribute('data-phone-number');
+        if (!phoneNumber) {
+            Swal.fire({ icon: 'error', title: 'Error!', text: 'No se pudo obtener el número de teléfono.' });
+            return;
+        }
+        
+        this.disabled = true;
+        this.textContent = 'Conectando...';
 
-                try {
-                    const response = await fetch('mis_telefonos', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: new URLSearchParams({ 'action': 'connect', 'phoneNumber': phoneNumber })
-                    });
-                    if (response.ok) {
-                        loadContent('mis_telefonos');
-                    } else {
-                        console.error("Error en la solicitud connect:", await response.text());
-                        Swal.fire({ icon: 'error', title: 'Error!', text: 'Error al conectar el número.' });
-                    }
-                } catch (error) {
-                    console.error("Error de red:", error);
-                    Swal.fire({ icon: 'error', title: 'Error!', text: 'Error de red al conectar el número.' });
-                }
+        // 1. Crea el elemento para el GIF de carga
+        const loadingIndicator = document.createElement('img');
+        loadingIndicator.src = 'img/loading.gif'; // Asegúrate de que esta ruta sea correcta
+        loadingIndicator.alt = 'Cargando...';
+        loadingIndicator.width = 20;
+        loadingIndicator.style.marginLeft = '10px';
+        loadingIndicator.classList.add('loading-indicator'); // Añadimos una clase para poder quitarlo luego
+
+        // 2. Añade el GIF al lado del botón (dentro del mismo contenedor padre)
+        this.parentNode.appendChild(loadingIndicator);
+
+        try {
+            const response = await fetch('mis_telefonos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ 'action': 'connect', 'phoneNumber': phoneNumber })
             });
-        });
+
+            if (response.ok) {
+                // Si la conexión es exitosa, se recarga el contenido y el GIF desaparece con ello.
+                loadContent('mis_telefonos');
+            } else {
+                console.error("Error en la solicitud connect:", await response.text());
+                Swal.fire({ icon: 'error', title: 'Error!', text: 'Error al conectar el número.' });
+            }
+        } catch (error) {
+            console.error("Error de red:", error);
+            Swal.fire({ icon: 'error', title: 'Error!', text: 'Error de red al conectar el número.' });
+        } finally {
+            if (!document.querySelector('.swal2-container')) { // Solo si no hay una alerta de SweetAlert activa
+                this.disabled = false;
+                this.textContent = 'Conectar';
+                // Buscamos y eliminamos el GIF si aún existe
+                const indicator = this.parentNode.querySelector('.loading-indicator');
+                if (indicator) {
+                    indicator.remove();
+                }
+            }
+        }
+    });
+});
 
         document.querySelectorAll('.delete-btn').forEach(button => {
             button.addEventListener('click', async function () {
@@ -214,7 +238,6 @@ document.addEventListener('DOMContentLoaded', function () {
         sendMessageForm.addEventListener('submit', async function (event) {
             event.preventDefault();
 
-            // Lógica de tu formulario original que enviaba JSON
             const apiToken = document.getElementById('apiTokenSend').value;
             const waAccount = document.getElementById('waAccountSend').value;
             const recipientAccount = document.getElementById('recipientAccountSend').value;
@@ -233,7 +256,6 @@ document.addEventListener('DOMContentLoaded', function () {
             responseContainer.innerHTML = 'Enviando mensaje...';
 
             try {
-                // NOTA: Usando JSON como lo tenías en tu script general original
                 const response = await fetch(apiSendChatUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
