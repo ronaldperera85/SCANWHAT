@@ -19,28 +19,30 @@ PRIMARY KEY (id) USING BTREE
 -- Table structure for mensajes
 
 DROP TABLE IF EXISTS mensajes;
+
 CREATE TABLE mensajes (
 id int NOT NULL AUTO_INCREMENT,
 uid varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
 custom_uid varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
 token text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-tipo enum('chat','image','video','document','audio','sticker','location','contact') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-cuerpo_mensaje text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
-remitente_uid varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL, 
-destinatario_uid varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
-replied_to_uid varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+tipo enum('chat','image','video','document','audio','sticker','location','contact','vcard') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+cuerpo_mensaje text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+remitente_uid varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+destinatario_uid varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+replied_to_uid varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
 es_entrante tinyint(1) NOT NULL,
 payload json NOT NULL,
-estado_entrega_endpoint enum('PENDIENTE','REINTENTANDO','EXITOSO','FALLIDO','NO_APLICA') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'PENDIENTE',
+estado_entrega_endpoint enum('PENDIENTE_SUBIDA', 'PENDIENTE','PROCESANDO','REINTENTANDO','EXITOSO','FALLIDO','NO_APLICA') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'PENDIENTE',
 estado_whatsapp enum('enviado','recibido','fallido') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-conteo_reintentos int NOT NULL DEFAULT 0,
-mensaje_error text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
-fecha_ultimo_intento timestamp NULL DEFAULT NULL,
-fecha_creacion timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+conteo_reintentos int NOT NULL DEFAULT '0',
+mensaje_error text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+fecha_ultimo_intento datetime DEFAULT NULL,
+fecha_proximo_intento datetime DEFAULT NULL,
+fecha_creacion datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 PRIMARY KEY (id),
 UNIQUE KEY custom_uid_unique (custom_uid),
-KEY idx_estado_entrega (estado_entrega_endpoint, conteo_reintentos, fecha_ultimo_intento)
-) ENGINE=InnoDB AUTO_INCREMENT=1 CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+KEY idx_worker_queue (estado_entrega_endpoint,fecha_proximo_intento) 
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 -- Table structure for numeros
 
