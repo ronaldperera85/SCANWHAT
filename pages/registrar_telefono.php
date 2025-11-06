@@ -117,13 +117,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label for="numero">Número de Teléfono:</label>
             <!-- MEJORA: Usar type="tel" y pattern para validación en el navegador -->
             <input type="tel" 
-                   id="numero" 
-                   name="numero" 
-                   class="form-control" 
-                   placeholder="Ej: 584121234567" 
-                   required
-                   pattern="\d{10,15}"
-                   title="Debe ser un número de 10 a 15 dígitos, sin espacios ni símbolos.">
+                id="numero" 
+                name="numero" 
+                class="form-control" 
+                placeholder="Ej: 584121234567" 
+                required
+                pattern="\d{10,15}"
+                title="Debe ser un número de 10 a 15 dígitos, sin espacios ni símbolos.">
             <!-- MEJORA: Añadir un texto de ayuda -->
             <small>Incluye el código de país. No uses '+' ni empieces con '0'.</small>
         </div>
@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </form>
 
     <!-- El QR se mostrará en un SweetAlert, por lo que esta sección no es estrictamente necesaria,
-         pero la dejamos por si el JS falla, como un fallback. -->
+        pero la dejamos por si el JS falla, como un fallback. -->
     <div id="qrCodeSection" style="display:none; text-align: center; margin-top: 20px;">
         <h2>Escanea el código QR con WhatsApp:</h2>
         <img id="qrCodeImage" src="" alt="Código QR para WhatsApp" style="max-width: 250px; border: 1px solid #ddd; padding: 5px;">
