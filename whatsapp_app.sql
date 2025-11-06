@@ -87,3 +87,34 @@ fecha_ultima_actualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDAT
 PRIMARY KEY (id),
 UNIQUE KEY uid_unique (uid) -- Asegura que cada número exista solo una vez
 ) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Tabla para gestionar lista negra de UIDs para no recibir mensajes entrantes en api y logs en scanwhat (uid que no registran chats en helpdesk)
+
+CREATE TABLE lista_negra_uid (
+    uid VARCHAR(25) PRIMARY KEY,
+    motivo VARCHAR(255),
+    fecha_agregado TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- ---------------------------------------------------------------------------------------------------------------
+
+INSERT INTO lista_negra_uid (uid, motivo) VALUES ('584125927917', 'Recepción de mensajes desactivada.');
+
+-- ---------------------------------------------------------------------------------------------------------------
+
+-- Borramos el trigger anterior para reemplazarlo
+DROP TRIGGER IF EXISTS trg_bloquear_mensaje_antes_de_insertar;
+
+-- Creamos el nuevo trigger que revisa al DESTINATARIO
+CREATE TRIGGER trg_bloquear_mensaje_antes_de_insertar
+BEFORE INSERT ON mensajes
+FOR EACH ROW
+BEGIN
+    -- Comprobamos si el mensaje es ENTRANTE Y si el DESTINATARIO está en la lista negra
+    IF NEW.es_entrante = 1 AND EXISTS (SELECT 1 FROM lista_negra_uid WHERE uid = NEW.destinatario_uid) THEN
+        -- Si ambas condiciones son ciertas, cancelamos la inserción
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Operación cancelada: El destinatario tiene la recepción de mensajes desactivada.';
+    END IF;
+END;
