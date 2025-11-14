@@ -1,35 +1,34 @@
 <?php
 session_start();
 
+// 1. Verificar si el usuario está autenticado (esto estaba bien)
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
     header("Location: login");
     exit();
 }
 
+// 2. Incluir la conexión a la base de datos (esto estaba bien)
+//    Este archivo ya se encarga de las variables de entorno y de crear $pdo.
 require_once __DIR__ . '/../db/conexion.php'; 
 
-if (!function_exists('loadEnv')) {
-    function loadEnv($envPath) {
-        if (!file_exists($envPath)) return false;
-        $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        foreach ($lines as $line) {
-            if (strpos(trim($line), '#') === 0) continue;
-            list($name, $value) = explode('=', $line, 2);
-            $_ENV[trim($name)] = trim($value);
-            putenv(trim($name) . '=' . trim($value));
-        }
-        return true;
-    }
+// --- SECCIÓN CORREGIDA ---
+// Se eliminó toda la lógica duplicada de loadEnv.
+// Ahora leemos la variable de entorno BACKEND_URL directamente.
+// getenv() funcionará tanto en local (gracias a conexion.php) como en CapRover.
+
+$backendUrl = getenv('BACKEND_URL');
+
+// Es una buena práctica verificar que la variable exista antes de usarla.
+if (!$backendUrl) {
+    // Si esta variable no está en CapRover, la página fallará con un error claro.
+    die("Error crítico de configuración: La variable de entorno BACKEND_URL no está definida.");
 }
 
-if (!loadEnv(__DIR__ . '/../.env')) {
-    die("Error: No se pudo cargar el archivo .env");
-}
-
-$baseUrl = rtrim($_ENV['BACKEND_URL'], '/');
+$baseUrl = rtrim($backendUrl, '/');
 $apiSendChatUrl  = $baseUrl . '/api/send/chat';
 $apiHelpdeskUrl = $baseUrl . '/api';
 
+// 3. Obtener los teléfonos de la base de datos (esto estaba bien)
 $telefonos_conectados = [];
 try {
     $stmt = $pdo->prepare("SELECT numero, token FROM numeros WHERE usuario_id = :usuario_id AND estado = 'conectado' ORDER BY numero ASC");

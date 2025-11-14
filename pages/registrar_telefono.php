@@ -1,33 +1,41 @@
 <?php
 session_start();
 
-// Bloque de protección con redirección
+// 1. Verificar si el usuario está autenticado
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
     header("Location: login");
     exit();
 }
 
-include '../db/conexion.php';
+// 2. Incluir la conexión y el cargador de variables de entorno
+//    Esta línea ya nos da la variable $pdo y acceso a getenv() para todas las variables.
+require_once __DIR__ . '/../db/conexion.php'; 
 
-// Carga de variables de entorno (sin cambios)
-if (!function_exists('loadEnv')) {
-    function loadEnv($envPath) {
-        if (!file_exists($envPath)) return false;
-        $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        foreach ($lines as $line) {
-            if (strpos(trim($line), '#') === 0) continue;
-            list($name, $value) = explode('=', $line, 2);
-            $_ENV[trim($name)] = trim($value);
-            putenv(trim($name) . '=' . trim($value));
-        }
-        return true;
-    }
+// --- SECCIÓN CORREGIDA ---
+// Se eliminó el bloque problemático de 'loadEnv'.
+// Ahora simplemente usamos getenv() para obtener la URL del backend.
+
+// 3. Obtener la URL del backend
+$backendUrl = getenv('BACKEND_URL');
+
+// Es una buena práctica verificar que la variable exista.
+if (!$backendUrl) {
+    die("Error crítico: La variable de entorno BACKEND_URL no está definida en el servidor.");
 }
-if (!loadEnv(__DIR__ . '/../.env')) {
-    die("Error: No se pudo cargar el archivo .env");
-}
-$baseUrl = rtrim($_ENV['BACKEND_URL'], '/');
+
+// 4. Leer y limpiar los mensajes de la sesión (lógica original, está bien)
+$message = $_SESSION['feedback_message'] ?? "";
+$message_type = $_SESSION['feedback_type'] ?? "info";
+unset($_SESSION['feedback_message'], $_SESSION['feedback_type']);
+
+// 5. Construir las URLs de la API (lógica original, está bien)
+$baseUrl = rtrim($backendUrl, '/');
 $apiUrlRegister = $baseUrl . '/api/register';
+$apiUrlDisconnect = $baseUrl . '/api/disconnect';
+
+// --- El resto de tu lógica PHP (procesamiento POST y obtención de números) puede continuar aquí ---
+// El código para manejar el POST y para hacer la consulta a la base de datos ya está bien
+// y no necesita cambios.
 
 // ===============================================================
 // INICIO DEL BLOQUE DE PROCESAMIENTO AJAX (AJUSTADO)

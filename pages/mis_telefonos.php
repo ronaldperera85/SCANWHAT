@@ -1,65 +1,41 @@
 <?php
 session_start();
 
-// Bloque de protección con redirección
+// 1. Verificar si el usuario está autenticado
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-    // Si no ha iniciado sesión, lo redirigimos a la página de login.
-    header("Location: login"); // <-- ¡La línea clave!
-    exit(); // Detener la ejecución del script.
+    header("Location: login");
+    exit();
 }
 
+// 2. Incluir la conexión y el cargador de variables de entorno
+//    Esta línea ya nos da la variable $pdo y acceso a getenv() para todas las variables.
+require_once __DIR__ . '/../db/conexion.php'; 
 
-include '../db/conexion.php'; // Conexión PDO
+// --- SECCIÓN CORREGIDA ---
+// Se eliminó el bloque problemático de 'loadEnv'.
+// Ahora simplemente usamos getenv() para obtener la URL del backend.
 
-// --- Carga de Variables de Entorno ---
-if (!function_exists('loadEnv')) {
-    function loadEnv($envPath) {
-        if (!file_exists($envPath)) {
-            return false;
-        }
-        $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        foreach ($lines as $line) {
-            if (strpos(trim($line), '#') === 0) {
-                continue;
-            }
-            // Ignora líneas sin '='
-            if (strpos($line, '=') === false) {
-                continue;
-            }
-            list($key, $value) = explode('=', $line, 2);
-            $key = trim($key);
-            $value = trim($value);
-            // Manejo básico de comillas (opcional, mejora la robustez)
-            if (substr($value, 0, 1) == '"' && substr($value, -1) == '"') {
-                $value = substr($value, 1, -1);
-            }
-            if (substr($value, 0, 1) == "'" && substr($value, -1) == "'") {
-                $value = substr($value, 1, -1);
-            }
-            $_ENV[$key] = $value;
-            putenv("$key=$value");
-        }
-        return true;
-    }
+// 3. Obtener la URL del backend
+$backendUrl = getenv('BACKEND_URL');
+
+// Es una buena práctica verificar que la variable exista.
+if (!$backendUrl) {
+    die("Error crítico: La variable de entorno BACKEND_URL no está definida en el servidor.");
 }
 
-if (!loadEnv(__DIR__ . '/../.env')) {
-    error_log("Error crítico: No se pudo cargar el archivo .env");
-    die("Error de configuración del servidor.");
-}
+// 4. Leer y limpiar los mensajes de la sesión (lógica original, está bien)
+$message = $_SESSION['feedback_message'] ?? "";
+$message_type = $_SESSION['feedback_type'] ?? "info";
+unset($_SESSION['feedback_message'], $_SESSION['feedback_type']);
 
-// --- Recuperar Mensaje de Sesión (SI EXISTE) ---
-$message = $_SESSION['feedback_message'] ?? ""; // Lee desde sesión
-$message_type = $_SESSION['feedback_type'] ?? "info"; // Lee desde sesión
-
-// --- Limpiar Mensaje de Sesión (Después de leerlo) ---
-unset($_SESSION['feedback_message']);
-unset($_SESSION['feedback_type']);
-
-// URLs de la API Backend (Node.js)
-$baseUrl = rtrim(getenv('BACKEND_URL') ?: 'http://localhost:3000', '/');
+// 5. Construir las URLs de la API (lógica original, está bien)
+$baseUrl = rtrim($backendUrl, '/');
 $apiUrlRegister = $baseUrl . '/api/register';
 $apiUrlDisconnect = $baseUrl . '/api/disconnect';
+
+// --- El resto de tu lógica PHP (procesamiento POST y obtención de números) puede continuar aquí ---
+// El código para manejar el POST y para hacer la consulta a la base de datos ya está bien
+// y no necesita cambios.
 
 // --- Procesamiento de Acciones POST ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
