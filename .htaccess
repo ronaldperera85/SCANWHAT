@@ -1,30 +1,44 @@
-RewriteEngine On
-RewriteBase /scanwhat/  
-# ^^^^^^^^^^^^^^^ (Cambiar a / cuando suba a la raíz del dominio web)
+# ==========================================================
+#        ARCHIVO .HTACCESS UNIVERSAL Y MEJORADO
+# ==========================================================
 
-# --- REGLAS DE SEGURIDAD Y SSL ---
-# Exclusión para el ACME challenge de Let's Encrypt/SSL
+# Activa el motor de reescritura de URLs
+RewriteEngine On
+
+# --- REGLAS DE SEGURIDAD Y CONFIGURACIÓN ---
+
+# Exclusión para el ACME challenge de Let's Encrypt/SSL (Buena práctica)
 RewriteRule ^\.well-known/acme-challenge/ - [L]
 
-# Impedir el acceso directo a la carpeta db/
-RewriteRule ^db/ - [F] 
-# (Asumo que el archivo db/conexion.php está en esa carpeta)
+# Impedir el acceso directo a la carpeta db/ (Regla de seguridad importante)
+RewriteRule ^db/ - [F,L] 
 
 # --- REGLAS DE ENRUTAMIENTO ---
 
-# 1. Redirigir el acceso a la raíz del sitio/subdirectorio a /menu
+# Regla #1: LA MÁS IMPORTANTE PARA EFICIENCIA Y EVITAR ERRORES
+# Si la URL solicitada corresponde a un archivo (como style.css, script.js, logo.png)
+# o un directorio que realmente existe, detén el procesamiento aquí y sirve el archivo.
+# Esto evita que Apache intente reescribir URLs de tus assets.
+RewriteCond %{REQUEST_FILENAME} -s [OR]
+RewriteCond %{REQUEST_FILENAME} -l [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^.*$ - [NC,L]
+
+# Regla #2: Redirigir el acceso a la raíz del sitio a /menu
+# Esta regla es relativa y funciona en cualquier ubicación (raíz o subcarpeta).
 RewriteRule ^$ menu [R=301,L]
 
-# 2. Excepción: /menu debe cargar index.php (El dashboard principal)
+# Regla #3: Reescritura interna de /menu a index.php
+# También es relativa y funciona en ambos entornos.
 RewriteRule ^menu/?$ index.php [L]
 
-# 3. Regla de limpieza (Redirecciona de /pages/file.php a /file)
-# Esto asegura que las URLs en el navegador sean siempre limpias.
+# Regla #4: Regla de limpieza (Redirecciona de /pages/file.php a /file)
+# Si alguien escribe la URL "fea", lo redirige a la "bonita".
+# La condición evita que se hagan redirecciones infinitas.
 RewriteCond %{THE_REQUEST} \s/pages/([^\s.]+)\.php [NC]
 RewriteRule ^pages/([^\s.]+)\.php$ %1 [R=301,L]
 
-# 4. Regla genérica de enrutamiento (Interna: /file -> pages/file.php)
-# Maneja login, registro, logout, etc.
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
+# Regla #5: Regla genérica para todas las demás URLs limpias
+# Esta es la regla principal que convierte "/login" en "pages/login.php".
+# Es relativa y la más importante para tu enrutamiento.
 RewriteRule ^([\w-]+)/?$ pages/$1.php [L]
