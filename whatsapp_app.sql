@@ -99,7 +99,7 @@ CREATE TABLE lista_negra_uid (
 
 -- ---------------------------------------------------------------------------------------------------------------
 
-INSERT INTO lista_negra_uid (uid, motivo) VALUES ('584125927917', 'Recepción de mensajes desactivada.');
+INSERT INTO lista_negra_uid (uid, motivo) VALUES ('584246356551', 'Recepción de mensajes desactivada.');
 
 -- ---------------------------------------------------------------------------------------------------------------
 
