@@ -1,0 +1,20 @@
+# /scanwhat/api/.htaccess
+
+# 1. Desactivar el motor de reescritura para que no herede reglas de la carpeta padre
+<IfModule mod_rewrite.c>
+    RewriteEngine Off
+</IfModule>
+
+# 2. Si usas cPanel/Passenger, esto apaga Node.js específicamente para esta carpeta
+<IfModule mod_passenger.c>
+    PassengerEnabled off
+</IfModule>
+
+# 3. Forzar que los archivos aquí se traten como PHP (por si acaso)
+<FilesMatch "\.php$">
+    SetHandler application/x-httpd-php
+</FilesMatch>
+
+# 4. Permitir el acceso a todos
+Order Allow,Deny
+Allow from all
