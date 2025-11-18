@@ -345,10 +345,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     // En local, subimos un nivel si estamos dentro de una subcarpeta virtual, 
                     // pero como tu JS carga sobre el index, '/scanwhat/' es la base.
                     // Lo más seguro es usar ruta absoluta desde la raíz del sitio:
-                    basePath = '/scanwhat/api/status_proxy.php';
+                    basePath = '/scanwhat/proxy/status_proxy.php';
                 } else {
                     // En el servidor (scanwhat.icarosoft.com), la carpeta api está en la raíz
-                    basePath = '/api/status_proxy.php';
+                    basePath = '/proxy/status_proxy.php';
                 }
 
                 // Construir la URL final
