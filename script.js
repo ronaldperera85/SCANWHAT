@@ -334,12 +334,32 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Función Proxy corregida (sin duplicados y ruta relativa)
+        // Función Proxy MEJORADA: Detecta la ruta correcta en Local y Servidor
         async function fetchViaProxy(uid) {
             try {
-                const proxyUrl = `api/status_proxy.php?uid=${encodeURIComponent(uid)}`;
+                // 1. Detectar la ruta base automáticamente
+                let basePath = '';
+                
+                // Si estamos en localhost y en la carpeta scanwhat
+                if (window.location.pathname.includes('/scanwhat/')) {
+                    // En local, subimos un nivel si estamos dentro de una subcarpeta virtual, 
+                    // pero como tu JS carga sobre el index, '/scanwhat/' es la base.
+                    // Lo más seguro es usar ruta absoluta desde la raíz del sitio:
+                    basePath = '/scanwhat/api/status_proxy.php';
+                } else {
+                    // En el servidor (scanwhat.icarosoft.com), la carpeta api está en la raíz
+                    basePath = '/api/status_proxy.php';
+                }
+
+                // Construir la URL final
+                const proxyUrl = `${basePath}?uid=${encodeURIComponent(uid)}`;
+                
+                // Debug: Ver en consola qué URL está intentando abrir (solo si falla)
+                // console.log("Intentando conectar a:", proxyUrl);
+
                 const res = await fetch(proxyUrl, { cache: 'no-store' });
 
-                // Si el servidor devuelve un error HTTP (como 401 para "No conectado"), lo manejamos aquí
+                // Si el servidor devuelve un error HTTP (como 401 para "No conectado")
                 if (!res.ok) {
                     return { ok: false, error: 'HTTP ' + res.status };
                 }
