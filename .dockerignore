@@ -1,0 +1,11 @@
+__pycache__
+*.pyc
+*.log
+.git
+.cliente
+.github
+temp_files
+node_modules/
+.DS_Store
+*.log
+*.env
