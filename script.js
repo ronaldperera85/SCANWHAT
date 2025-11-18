@@ -37,9 +37,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 initEventListeners();
                 initRegisterPhoneFormListener();
                 initChangePasswordFormListener();
-                initDeveloperFormListeners(); // Llamada a la nueva función
+                initDeveloperFormListeners();
                 if (pageName === 'admin' || pageName === 'mis_telefonos') {
                     initTokenToggle();
+                }
+                if (pageName === 'monitoreo') {
+                    initMonitoring();
                 }
             })
             .catch(error => {
@@ -57,57 +60,53 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         document.querySelectorAll('.connect-btn').forEach(button => {
-    button.addEventListener('click', async function () {
-        const phoneNumber = this.getAttribute('data-phone-number');
-        if (!phoneNumber) {
-            Swal.fire({ icon: 'error', title: 'Error!', text: 'No se pudo obtener el número de teléfono.' });
-            return;
-        }
-        
-        this.disabled = true;
-        this.textContent = 'Conectando...';
-
-        // 1. Crea el elemento para el GIF de carga
-        const loadingIndicator = document.createElement('img');
-        loadingIndicator.src = 'img/loading.gif'; // Asegúrate de que esta ruta sea correcta
-        loadingIndicator.alt = 'Cargando...';
-        loadingIndicator.width = 20;
-        loadingIndicator.style.marginLeft = '10px';
-        loadingIndicator.classList.add('loading-indicator'); // Añadimos una clase para poder quitarlo luego
-
-        // 2. Añade el GIF al lado del botón (dentro del mismo contenedor padre)
-        this.parentNode.appendChild(loadingIndicator);
-
-        try {
-            const response = await fetch('mis_telefonos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ 'action': 'connect', 'phoneNumber': phoneNumber })
-            });
-
-            if (response.ok) {
-                // Si la conexión es exitosa, se recarga el contenido y el GIF desaparece con ello.
-                loadContent('mis_telefonos');
-            } else {
-                console.error("Error en la solicitud connect:", await response.text());
-                Swal.fire({ icon: 'error', title: 'Error!', text: 'Error al conectar el número.' });
-            }
-        } catch (error) {
-            console.error("Error de red:", error);
-            Swal.fire({ icon: 'error', title: 'Error!', text: 'Error de red al conectar el número.' });
-        } finally {
-            if (!document.querySelector('.swal2-container')) { // Solo si no hay una alerta de SweetAlert activa
-                this.disabled = false;
-                this.textContent = 'Conectar';
-                // Buscamos y eliminamos el GIF si aún existe
-                const indicator = this.parentNode.querySelector('.loading-indicator');
-                if (indicator) {
-                    indicator.remove();
+            button.addEventListener('click', async function () {
+                const phoneNumber = this.getAttribute('data-phone-number');
+                if (!phoneNumber) {
+                    Swal.fire({ icon: 'error', title: 'Error!', text: 'No se pudo obtener el número de teléfono.' });
+                    return;
                 }
-            }
-        }
-    });
-});
+
+                this.disabled = true;
+                this.textContent = 'Conectando...';
+
+                const loadingIndicator = document.createElement('img');
+                loadingIndicator.src = 'img/loading.gif';
+                loadingIndicator.alt = 'Cargando...';
+                loadingIndicator.width = 20;
+                loadingIndicator.style.marginLeft = '10px';
+                loadingIndicator.classList.add('loading-indicator');
+
+                this.parentNode.appendChild(loadingIndicator);
+
+                try {
+                    const response = await fetch('mis_telefonos', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({ 'action': 'connect', 'phoneNumber': phoneNumber })
+                    });
+
+                    if (response.ok) {
+                        loadContent('mis_telefonos');
+                    } else {
+                        console.error("Error en la solicitud connect:", await response.text());
+                        Swal.fire({ icon: 'error', title: 'Error!', text: 'Error al conectar el número.' });
+                    }
+                } catch (error) {
+                    console.error("Error de red:", error);
+                    Swal.fire({ icon: 'error', title: 'Error!', text: 'Error de red al conectar el número.' });
+                } finally {
+                    if (!document.querySelector('.swal2-container')) {
+                        this.disabled = false;
+                        this.textContent = 'Conectar';
+                        const indicator = this.parentNode.querySelector('.loading-indicator');
+                        if (indicator) {
+                            indicator.remove();
+                        }
+                    }
+                }
+            });
+        });
 
         document.querySelectorAll('.delete-btn').forEach(button => {
             button.addEventListener('click', async function () {
@@ -166,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const apiBaseUrl = cardElement.getAttribute('data-api-base-url');
         const apiSendChatUrl = cardElement.getAttribute('data-api-send-chat-url');
 
-        waAccountSelect.addEventListener('change', async function() {
+        waAccountSelect.addEventListener('change', async function () {
             const selectedOption = this.options[this.selectedIndex];
             const token = selectedOption.getAttribute('data-token');
             const numero = this.value;
@@ -188,15 +187,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 const groupsApiUrl = `${apiBaseUrl}/api/groups/${numero}`;
                 const response = await fetch(groupsApiUrl);
                 if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
-                
+
                 const data = await response.json();
                 groupSelect.innerHTML = '';
-                
+
                 const defaultOption = document.createElement('option');
                 defaultOption.value = '';
                 defaultOption.textContent = '-- Enviar a un número individual --';
                 groupSelect.appendChild(defaultOption);
-                
+
                 if (data.success && Array.isArray(data.data) && data.data.length > 0) {
                     data.data
                         .filter(group => group.id && group.id.endsWith('@g.us'))
@@ -223,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        groupSelect.addEventListener('change', function() {
+        groupSelect.addEventListener('change', function () {
             const selectedGroupId = this.value;
             if (selectedGroupId) {
                 recipientAccountInput.value = selectedGroupId;
@@ -234,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 recipientAccountInput.focus();
             }
         });
-        
+
         sendMessageForm.addEventListener('submit', async function (event) {
             event.preventDefault();
 
@@ -252,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
                 return;
             }
-            
+
             responseContainer.innerHTML = 'Enviando mensaje...';
 
             try {
@@ -269,16 +268,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
 
                 const data = await response.json();
-                responseContainer.innerHTML = ''; 
-                
-                if (response.ok && data.success) { // Doble chequeo
+                responseContainer.innerHTML = '';
+
+                if (response.ok && data.success) {
                     Swal.fire({
                         icon: 'success',
                         title: '¡Mensaje Enviado!',
                         text: 'El mensaje ha sido enviado correctamente.'
                     });
-                    sendMessageForm.reset(); 
-                    // Resetear los campos relacionados
+                    sendMessageForm.reset();
                     apiTokenInput.value = '';
                     groupSelect.innerHTML = '<option value="">-- Seleccione un número primero --</option>';
                     groupSelect.disabled = true;
@@ -293,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             } catch (error) {
                 console.error("Error de red:", error);
-                responseContainer.innerHTML = ''; 
+                responseContainer.innerHTML = '';
                 Swal.fire({
                     icon: 'error',
                     title: 'Error de Red',
@@ -301,6 +299,119 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
         });
+    }
+
+    // Inicializa el monitor de estados
+    function initMonitoring() {
+        const monitorGrid = document.getElementById('monitor-grid');
+        if (!monitorGrid) return;
+
+        const apiBase = monitorGrid.dataset.apiBase || '';
+        let phones = [];
+        try {
+            phones = JSON.parse(monitorGrid.dataset.phones || '[]');
+        } catch (e) {
+            console.error('Error parsing phones data attribute:', e);
+            phones = [];
+        }
+
+        const btnRefreshNow = document.getElementById('btn-refresh-now');
+        const intervalSeconds = 60;
+
+        if (monitorGrid._monitoring_timer) {
+            clearInterval(monitorGrid._monitoring_timer);
+            monitorGrid._monitoring_timer = null;
+        }
+
+        function setLastChecked(uid) {
+            const last = document.getElementById(`last-checked-${uid}`);
+            if (last) last.textContent = 'Última comprobación: ' + (new Date()).toLocaleString();
+        }
+
+        // Función simplificada: Llama SIEMPRE al proxy
+        async function fetchStatus(uid) {
+            return await fetchViaProxy(uid);
+        }
+
+        // Función Proxy corregida (sin duplicados y ruta relativa)
+        async function fetchViaProxy(uid) {
+            try {
+                const proxyUrl = `api/status_proxy.php?uid=${encodeURIComponent(uid)}`;
+                const res = await fetch(proxyUrl, { cache: 'no-store' });
+
+                // Si el servidor devuelve un error HTTP (como 401 para "No conectado"), lo manejamos aquí
+                if (!res.ok) {
+                    return { ok: false, error: 'HTTP ' + res.status };
+                }
+
+                const data = await res.json();
+                if (data && data.success && data.data) {
+                    return { ok: true, status: data.data.status, raw: data.data };
+                }
+                return { ok: false, error: data?.message || 'Respuesta inválida' };
+
+            } catch (err) {
+                return { ok: false, error: 'Proxy error: ' + (err.message || String(err)) };
+            }
+        }
+
+        function updateCardUI(uid, result) {
+            const display = document.getElementById(`status-display-${uid}`);
+            const text = document.getElementById(`status-text-${uid}`);
+            const last = document.getElementById(`last-checked-${uid}`);
+            if (!display || !text || !last) return;
+
+            let cls = 'status-error';
+            let txt = 'Error';
+
+            if (result.ok) {
+                switch (result.status) {
+                    case 'authenticated': cls = 'status-conectado'; txt = 'Conectado'; break;
+                    case 'unauthenticated': cls = 'status-desconectado'; txt = 'Desconectado'; break;
+                    case 'initializing':
+                    case 'initializing_or_failed': cls = 'status-inicializando'; txt = 'Inicializando'; break;
+                    default: cls = 'status-error'; txt = String(result.status || 'Desconocido');
+                }
+            } else {
+                const err = (result.error || '').toString();
+                // Detectamos el 401 que viene del backend como "No conectado"
+                if (/401|403|404|no autorizado|no autorizado/i.test(err) || /no\s*conect/i.test(err)) {
+                    cls = 'status-desconectado';
+                    txt = 'No conectado';
+                } else if (/timeout|proxy error|network|cors/i.test(err)) {
+                    cls = 'status-error';
+                    txt = 'Error de conexión';
+                } else {
+                    cls = 'status-error';
+                    txt = err.replace(/^HTTP\s*/i, '');
+                    if (!txt) txt = 'Error de conexión';
+                }
+            }
+
+            display.className = 'status-display ' + cls;
+            text.textContent = txt;
+            last.textContent = 'Última comprobación: ' + (new Date()).toLocaleString();
+        }
+
+        async function updateAllStatuses() {
+            if (!phones.length) return;
+            for (const uid of phones) {
+                fetchStatus(uid).then(res => {
+                    updateCardUI(uid, res);
+                    setLastChecked(uid);
+                });
+            }
+        }
+
+        function restartTimer() {
+            if (monitorGrid._monitoring_timer) clearInterval(monitorGrid._monitoring_timer);
+            monitorGrid._monitoring_timer = setInterval(updateAllStatuses, intervalSeconds * 1000);
+        }
+
+        if (btnRefreshNow) btnRefreshNow.addEventListener('click', () => updateAllStatuses());
+
+        updateAllStatuses();
+        restartTimer();
     }
 
     function initRegisterPhoneFormListener() {
@@ -350,7 +461,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     }
-    
+
     function initChangePasswordFormListener() {
         const changePasswordForm = document.getElementById('changePasswordForm');
         if (changePasswordForm) {
@@ -415,7 +526,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let isShortened = true;
             tokenElement.textContent = shortenedToken;
             tokenElement.style.cursor = 'pointer';
-            tokenElement.addEventListener('click', function() {
+            tokenElement.addEventListener('click', function () {
                 isShortened = !isShortened;
                 tokenElement.textContent = isShortened ? shortenedToken : fullToken;
             });

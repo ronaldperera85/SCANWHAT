@@ -58,11 +58,12 @@ $faviconPath = "./img/small.png";
             <button class="toggle-btn"><i class="fas fa-angle-left"></i></button>
         </header>
         <!-- CÓDIGO NUEVO (CORRECTO) -->
-<nav>
+        <nav>
     <ul>
         <li><a href="#" data-page="dashboard"><i class="fas fa-home"></i><span>Tablero</span></a></li>
         <li><a href="#" data-page="mi_cuenta"><i class="fas fa-user"></i><span>Mi cuenta</span></a></li>
         <li><a href="#" data-page="mis_telefonos"><i class="fas fa-phone"></i><span>Mis teléfonos</span></a></li>
+        <li><a href="#" data-page="monitoreo"><i class="fas fa-signal"></i><span>Monitoreo</span></a></li>
         <li><a href="#" data-page="desarrolladores"><i class="fas fa-code"></i><span>Desarrolladores</span></a></li>
         <?php if (isAdmin($_SESSION['user_id'], $pdo)): ?>
             <li><a href="#" data-page="admin"><i class="fas fa-user-shield"></i><span>Administrador</span></a></li>

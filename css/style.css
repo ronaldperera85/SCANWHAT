@@ -799,6 +799,36 @@ body.dark-theme input:checked + .slider {
 
 /* --- Estilos REVISADOS para el Cuadro del Código QR --- */
 
+/* --- BLOQUE: Monitor de Conexión (integrado) --- */
+.monitor-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  margin-top: 10px;
+}
+.status-card{
+  border-radius: 10px;
+  padding: 18px;
+  background-color: var(--bg-card, #fff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+.status-card h2{ font-size: 0.95rem; color: var(--text-secondary, #6b7280); margin-bottom:6px; font-weight:600; }
+.status-card .phone-number{ font-size:1.4rem; font-weight:700; margin-bottom:12px; color:var(--text-primary,#111827); }
+.status-display{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; font-weight:700; }
+.status-dot{ width:10px; height:10px; border-radius:50%; }
+.status-conectado{ background: rgba(40,167,69,0.08); color:#28a745; }
+.status-conectado .status-dot{ background:#28a745; animation: pulse-green 1.8s infinite; }
+.status-desconectado{ background: rgba(220,53,69,0.08); color:#dc3545; }
+.status-desconectado .status-dot{ background:#dc3545; animation:none; }
+.status-inicializando{ background: rgba(255,193,7,0.08); color:#d97706; }
+.status-inicializando .status-dot{ background:#d97706; animation: pulse-yellow 1.8s infinite; }
+.status-error{ background: rgba(108,117,125,0.06); color:#6c757d; }
+.last-checked{ margin-top:10px; font-size:0.85rem; color:var(--text-secondary,#6b7280); }
+@keyframes pulse-green{0%{box-shadow:0 0 0 0 rgba(40,167,69,0.6);}70%{box-shadow:0 0 0 10px rgba(40,167,69,0);}100%{box-shadow:0 0 0 0 rgba(40,167,69,0);}}
+@keyframes pulse-yellow{0%{box-shadow:0 0 0 0 rgba(217,119,6,0.6);}70%{box-shadow:0 0 0 10px rgba(217,119,6,0);}100%{box-shadow:0 0 0 0 rgba(217,119,6,0);}}
+/* --- FIN BLOQUE Monitor --- */
+
 /* Estilos BASE (Radio y transición - aplicables a ambos) */
 .qr-code-display {
   border-radius: 5px;
