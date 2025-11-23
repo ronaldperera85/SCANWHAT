@@ -37,7 +37,7 @@ try {
 
     <div id="monitor-grid" class="monitor-grid" data-api-base="<?php echo htmlspecialchars($apiBase, ENT_QUOTES); ?>" data-phones='<?php echo json_encode(array_column($telefonos, "numero")); ?>'>
     <?php if (empty($telefonos)): ?>
-        <div class="card" style="text-align: center; background-color: #f9f9f9;">
+        <div class="card" style="text-align: center; padding: 20px;">
             <p>No tienes números registrados.</p>
         </div>
     <?php else: ?>
