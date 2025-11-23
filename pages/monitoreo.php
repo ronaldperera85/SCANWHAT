@@ -31,10 +31,6 @@ try {
 
     <p class="subtitle-gray">Estado en casi tiempo real de tus números. Actualización automática cada 60 segundos.</p>
 
-    <div style="margin: 12px 0;">
-        <button id="btn-refresh-now" class="btn btn-primary">Actualizar ahora</button>
-    </div>
-
     <div id="monitor-grid" class="monitor-grid" data-api-base="<?php echo htmlspecialchars($apiBase, ENT_QUOTES); ?>" data-phones='<?php echo json_encode(array_column($telefonos, "numero")); ?>'>
     <?php if (empty($telefonos)): ?>
         <div class="card" style="text-align: center; padding: 20px;">

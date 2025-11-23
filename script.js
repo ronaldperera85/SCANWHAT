@@ -301,138 +301,135 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Inicializa el monitor de estados
+    // =========================================================================
+    // === FUNCIÓN initMonitoring AUTOMÁTICA (Sin botón manual) ===
+    // =========================================================================
     function initMonitoring() {
-        const monitorGrid = document.getElementById('monitor-grid');
-        if (!monitorGrid) return;
+    const monitorGrid = document.getElementById('monitor-grid');
+    if (!monitorGrid) return;
 
-        const apiBase = monitorGrid.dataset.apiBase || '';
-        let phones = [];
-        try {
-            phones = JSON.parse(monitorGrid.dataset.phones || '[]');
-        } catch (e) {
-            console.error('Error parsing phones data attribute:', e);
-            phones = [];
-        }
-
-        const btnRefreshNow = document.getElementById('btn-refresh-now');
-        const intervalSeconds = 60;
-
-        if (monitorGrid._monitoring_timer) {
-            clearInterval(monitorGrid._monitoring_timer);
-            monitorGrid._monitoring_timer = null;
-        }
-
-        function setLastChecked(uid) {
-            const last = document.getElementById(`last-checked-${uid}`);
-            if (last) last.textContent = 'Última comprobación: ' + (new Date()).toLocaleString();
-        }
-
-        // Función simplificada: Llama SIEMPRE al proxy
-        async function fetchStatus(uid) {
-            return await fetchViaProxy(uid);
-        }
-
-        // Función Proxy corregida (sin duplicados y ruta relativa)
-        // Función Proxy MEJORADA: Detecta la ruta correcta en Local y Servidor
-        async function fetchViaProxy(uid) {
-            try {
-                // 1. Detectar la ruta base automáticamente
-                let basePath = '';
-                
-                // Si estamos en localhost y en la carpeta scanwhat
-                if (window.location.pathname.includes('/scanwhat/')) {
-                    // En local, subimos un nivel si estamos dentro de una subcarpeta virtual, 
-                    // pero como tu JS carga sobre el index, '/scanwhat/' es la base.
-                    // Lo más seguro es usar ruta absoluta desde la raíz del sitio:
-                    basePath = '/scanwhat/proxy/status_proxy.php';
-                } else {
-                    // En el servidor (scanwhat.icarosoft.com), la carpeta api está en la raíz
-                    basePath = '/proxy/status_proxy.php';
-                }
-
-                // Construir la URL final
-                const proxyUrl = `${basePath}?uid=${encodeURIComponent(uid)}`;
-                
-                // Debug: Ver en consola qué URL está intentando abrir (solo si falla)
-                // console.log("Intentando conectar a:", proxyUrl);
-
-                const res = await fetch(proxyUrl, { cache: 'no-store' });
-
-                // Si el servidor devuelve un error HTTP (como 401 para "No conectado")
-                if (!res.ok) {
-                    return { ok: false, error: 'HTTP ' + res.status };
-                }
-
-                const data = await res.json();
-                if (data && data.success && data.data) {
-                    return { ok: true, status: data.data.status, raw: data.data };
-                }
-                return { ok: false, error: data?.message || 'Respuesta inválida' };
-
-            } catch (err) {
-                return { ok: false, error: 'Proxy error: ' + (err.message || String(err)) };
-            }
-        }
-
-        function updateCardUI(uid, result) {
-            const display = document.getElementById(`status-display-${uid}`);
-            const text = document.getElementById(`status-text-${uid}`);
-            const last = document.getElementById(`last-checked-${uid}`);
-            if (!display || !text || !last) return;
-
-            let cls = 'status-error';
-            let txt = 'Error';
-
-            if (result.ok) {
-                switch (result.status) {
-                    case 'authenticated': cls = 'status-conectado'; txt = 'Conectado'; break;
-                    case 'unauthenticated': cls = 'status-desconectado'; txt = 'Desconectado'; break;
-                    case 'initializing':
-                    case 'initializing_or_failed': cls = 'status-inicializando'; txt = 'Inicializando'; break;
-                    default: cls = 'status-error'; txt = String(result.status || 'Desconocido');
-                }
-            } else {
-                const err = (result.error || '').toString();
-                // Detectamos el 401 que viene del backend como "No conectado"
-                if (/401|403|404|no autorizado|no autorizado/i.test(err) || /no\s*conect/i.test(err)) {
-                    cls = 'status-desconectado';
-                    txt = 'No conectado';
-                } else if (/timeout|proxy error|network|cors/i.test(err)) {
-                    cls = 'status-error';
-                    txt = 'Error de conexión';
-                } else {
-                    cls = 'status-error';
-                    txt = err.replace(/^HTTP\s*/i, '');
-                    if (!txt) txt = 'Error de conexión';
-                }
-            }
-
-            display.className = 'status-display ' + cls;
-            text.textContent = txt;
-            last.textContent = 'Última comprobación: ' + (new Date()).toLocaleString();
-        }
-
-        async function updateAllStatuses() {
-            if (!phones.length) return;
-            for (const uid of phones) {
-                fetchStatus(uid).then(res => {
-                    updateCardUI(uid, res);
-                    setLastChecked(uid);
-                });
-            }
-        }
-
-        function restartTimer() {
-            if (monitorGrid._monitoring_timer) clearInterval(monitorGrid._monitoring_timer);
-            monitorGrid._monitoring_timer = setInterval(updateAllStatuses, intervalSeconds * 1000);
-        }
-
-        if (btnRefreshNow) btnRefreshNow.addEventListener('click', () => updateAllStatuses());
-
-        updateAllStatuses();
-        restartTimer();
+    // Variables de control
+    let isUpdating = false;
+    
+    // Obtenemos los teléfonos del dataset
+    let phones = [];
+    try {
+        phones = JSON.parse(monitorGrid.dataset.phones || '[]');
+    } catch (e) {
+        console.error('Error parsing phones data attribute:', e);
+        phones = [];
     }
+
+    // Limpieza de temporizadores anteriores (importante para SPA)
+    if (monitorGrid._monitoring_timer) {
+        clearInterval(monitorGrid._monitoring_timer);
+        monitorGrid._monitoring_timer = null;
+    }
+
+    function setLastChecked(uid) {
+        const last = document.getElementById(`last-checked-${uid}`);
+        if (last) last.querySelector('span').textContent = new Date().toLocaleTimeString();
+    }
+
+    // Función Proxy (Ruta Dinámica)
+    async function fetchViaProxy(uid) {
+        try {
+            let basePath = '';
+            // Detección automática de ruta local vs producción
+            if (window.location.pathname.includes('/scanwhat/')) {
+                basePath = '/scanwhat/proxy/status_proxy.php';
+            } else {
+                basePath = '/proxy/status_proxy.php';
+            }
+            const proxyUrl = `${basePath}?uid=${encodeURIComponent(uid)}`;
+            
+            const res = await fetch(proxyUrl, { cache: 'no-store' });
+
+            if (!res.ok) {
+                return { ok: false, error: 'HTTP ' + res.status };
+            }
+            const data = await res.json();
+            if (data && data.success && data.data) {
+                return { ok: true, status: data.data.status, raw: data.data };
+            }
+            return { ok: false, error: data?.message || 'Respuesta inválida' };
+        } catch (err) {
+            return { ok: false, error: 'Proxy error: ' + (err.message || String(err)) };
+        }
+    }
+
+    function updateCardUI(uid, result) {
+        const display = document.getElementById(`status-display-${uid}`);
+        const text = document.getElementById(`status-text-${uid}`);
+        
+        if (!display || !text) return;
+
+        let cls = 'status-error';
+        let txt = 'Error';
+
+        if (result.ok) {
+            switch (result.status) {
+                case 'authenticated': 
+                case 'conectado': 
+                    cls = 'status-conectado'; txt = 'Conectado'; break;
+                case 'unauthenticated': 
+                case 'desconectado': 
+                    cls = 'status-desconectado'; txt = 'Desconectado'; break;
+                case 'initializing':
+                case 'initializing_or_failed': 
+                    cls = 'status-inicializando'; txt = 'Inicializando'; break;
+                default: 
+                    cls = 'status-error'; txt = String(result.status || 'Desconocido');
+            }
+        } else {
+            const err = (result.error || '').toString();
+            if (/401|403|404|no autorizado|no autorizado/i.test(err) || /no\s*conect/i.test(err)) {
+                cls = 'status-desconectado';
+                txt = 'No conectado';
+            } else if (/timeout|proxy error|network|cors/i.test(err)) {
+                cls = 'status-error';
+                txt = 'Error de conexión';
+            } else {
+                cls = 'status-error';
+                txt = err.replace(/^HTTP\s*/i, '');
+                if (!txt) txt = 'Error de conexión';
+            }
+        }
+
+        display.className = 'status-display ' + cls;
+        text.textContent = txt;
+        text.style.opacity = '1'; // Restaurar opacidad al terminar
+        setLastChecked(uid);
+    }
+
+    // --- LÓGICA DE ACTUALIZACIÓN MASIVA ---
+    async function updateAllStatuses() {
+        if (isUpdating) return; // Evitar solapamiento de peticiones
+        isUpdating = true;
+
+        // Feedback visual sutil (opacidad en el texto) para saber que está refrescando
+        phones.forEach(uid => {
+            const text = document.getElementById(`status-text-${uid}`);
+            if(text) text.style.opacity = '0.5';
+        });
+
+        // Ejecutar peticiones en paralelo
+        const promises = phones.map(async (uid) => {
+            const res = await fetchViaProxy(uid);
+            updateCardUI(uid, res);
+        });
+
+        await Promise.all(promises);
+        isUpdating = false;
+    }
+
+    // Ejecutar comprobación inicial inmediata
+    updateAllStatuses();
+
+    // Programar timer: 61 segundos
+    // (61s es ideal porque tu backend tiene caché de 60s, así aseguramos obtener el dato fresco)
+    monitorGrid._monitoring_timer = setInterval(updateAllStatuses, 61000);
+}
 
     function initRegisterPhoneFormListener() {
         const registerPhoneForm = document.getElementById('registerPhoneForm');
