@@ -176,14 +176,24 @@ try {
                             <p class="card-text">
                                 <strong>Estado:</strong><br/>
                                 <span class="status-text badge bg-<?php
-                                    echo match ($numero_data['estado']) {
-                                        'conectado' => 'success',
-                                        'desconectado' => 'secondary',
-                                        'pendiente' => 'warning text-dark',
-                                        'error_vinculacion' => 'danger',
-                                        default => 'info'
-                                    };
-                                ?>">
+    switch ($numero_data['estado']) {
+        case 'conectado':
+            echo 'success';
+            break;
+        case 'desconectado':
+            echo 'secondary';
+            break;
+        case 'pendiente':
+            echo 'warning text-dark';
+            break;
+        case 'error_vinculacion':
+            echo 'danger';
+            break;
+        default:
+            echo 'info';
+            break;
+    }
+?>">
                                     <?php echo htmlspecialchars(ucfirst($numero_data['estado'])); ?>
                                 </span>
                             </p>
