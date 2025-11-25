@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        // --- LÓGICA DEL BOTÓN CONECTAR (MODIFICADA PARA JSON + QR) ---
         document.querySelectorAll('.connect-btn').forEach(button => {
             button.addEventListener('click', async function () {
                 const phoneNumber = this.getAttribute('data-phone-number');
@@ -67,84 +68,113 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
+                // 1. UI Loading (Bloquear botón y cambiar texto)
                 this.disabled = true;
-                this.textContent = 'Conectando...';
-
-                const loadingIndicator = document.createElement('img');
-                loadingIndicator.src = 'img/loading.gif';
-                loadingIndicator.alt = 'Cargando...';
-                loadingIndicator.width = 20;
-                loadingIndicator.style.marginLeft = '10px';
-                loadingIndicator.classList.add('loading-indicator');
-
-                this.parentNode.appendChild(loadingIndicator);
+                const originalContent = this.innerHTML; // Guardamos el icono y texto original
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando QR...';
 
                 try {
+                    // 2. Petición al Backend
                     const response = await fetch('mis_telefonos', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: new URLSearchParams({ 'action': 'connect', 'phoneNumber': phoneNumber })
                     });
 
-                    if (response.ok) {
-                        loadContent('mis_telefonos');
-                    } else {
-                        console.error("Error en la solicitud connect:", await response.text());
-                        Swal.fire({ icon: 'error', title: 'Error!', text: 'Error al conectar el número.' });
+                    // 3. Parsear JSON (El PHP ahora devuelve JSON, no HTML)
+                    let data;
+                    try {
+                        data = await response.json();
+                    } catch (e) {
+                        throw new Error("El servidor no devolvió un JSON válido. Revisa el log de PHP.");
                     }
-                } catch (error) {
-                    console.error("Error de red:", error);
-                    Swal.fire({ icon: 'error', title: 'Error!', text: 'Error de red al conectar el número.' });
-                } finally {
-                    if (!document.querySelector('.swal2-container')) {
+
+                    // 4. Verificar éxito y mostrar QR
+                    if (data.success && data.qrCode) {
+                        // Restauramos el botón visualmente antes de mostrar la alerta
                         this.disabled = false;
-                        this.textContent = 'Conectar';
-                        const indicator = this.parentNode.querySelector('.loading-indicator');
-                        if (indicator) {
-                            indicator.remove();
-                        }
+                        this.innerHTML = originalContent;
+
+                        // Mostrar SweetAlert con el QR
+                        Swal.fire({
+                            title: '¡Código QR Generado!',
+                            html: `
+                                <p>${data.message}</p>
+                                <div class="qr-container" style="margin-top: 15px; text-align: center;">
+                                    <img src="${data.qrCode}" alt="QR Code" style="max-width: 250px; height: auto; border: 1px solid #ddd; padding: 5px;">
+                                </div>
+                                <p class="text-muted mt-2"><small>Escanea con WhatsApp para vincular</small></p>
+                            `,
+                            icon: 'success',
+                            allowOutsideClick: false,
+                            confirmButtonText: 'Listo, recargar'
+                        }).then((result) => {
+                            // Recargar la tabla solo cuando el usuario cierre la alerta
+                            if (result.isConfirmed || result.isDismissed) {
+                                loadContent('mis_telefonos');
+                            }
+                        });
+
+                    } else {
+                        // Manejo de errores controlados por la API
+                        console.error("Error API:", data);
+                        Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Error al conectar el número.' });
+                        this.disabled = false;
+                        this.innerHTML = originalContent;
                     }
+
+                } catch (error) {
+                    console.error("Error de red/parseo:", error);
+                    Swal.fire({ icon: 'error', title: 'Error de Red', text: 'Error de comunicación con el servidor.' });
+                    this.disabled = false;
+                    this.innerHTML = originalContent;
                 }
             });
         });
 
+        // --- LÓGICA DEL BOTÓN DESCONECTAR (MODIFICADA PARA JSON) ---
         document.querySelectorAll('.delete-btn').forEach(button => {
             button.addEventListener('click', async function () {
                 const phoneNumber = this.getAttribute('data-phone-number');
-                if (!phoneNumber) {
-                    Swal.fire({ icon: 'error', title: 'Error!', text: 'No se pudo obtener el número de teléfono para cerrar sesión.' });
-                    return;
-                }
+                
                 Swal.fire({
-                    title: "¿Estás seguro de que deseas cerrar sesión de este número?",
+                    title: "¿Cerrar sesión?",
+                    text: `¿Estás seguro de desconectar el número ${phoneNumber}?`,
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Sí, cerrar sesión!',
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Sí, desconectar',
                     cancelButtonText: 'Cancelar'
                 }).then(async (result) => {
                     if (result.isConfirmed) {
+                        // UI Loading
                         this.disabled = true;
-                        this.textContent = 'Cerrando Sesión...';
+                        const originalContent = this.innerHTML;
+                        this.textContent = 'Procesando...';
+
                         try {
-                            const disconnectResponse = await fetch('mis_telefonos', {
+                            const response = await fetch('mis_telefonos', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                                 body: new URLSearchParams({ 'action': 'disconnect_user', 'phoneNumber': phoneNumber })
                             });
-                            if (disconnectResponse.ok) {
-                                loadContent('mis_telefonos');
+                            
+                            // Parsear JSON
+                            const data = await response.json();
+
+                            if (data.success) {
+                                Swal.fire('Desconectado', data.message, 'success')
+                                    .then(() => loadContent('mis_telefonos'));
                             } else {
-                                console.error("Error al desconectar:", await disconnectResponse.text());
-                                Swal.fire({ icon: 'error', title: 'Error!', text: 'Error al cerrar sesión del número.' });
+                                Swal.fire('Error', data.message, 'error');
+                                this.disabled = false;
+                                this.innerHTML = originalContent;
                             }
                         } catch (error) {
                             console.error("Error de red:", error);
-                            Swal.fire({ icon: 'error', title: 'Error!', text: 'Error de red al cerrar sesión del número.' });
-                        } finally {
+                            Swal.fire('Error', 'Fallo de red al desconectar.', 'error');
                             this.disabled = false;
-                            this.textContent = 'Cerrar Sesión';
+                            this.innerHTML = originalContent;
                         }
                     }
                 });
