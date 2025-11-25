@@ -158,7 +158,7 @@ try {
         </div>
     <?php endif; ?>
 
-    <button id="add-phone" class="btn btn-primary mb-3"><i class="fas fa-plus"></i> Agregar Nuevo Número</button>
+    <button id="add-phone" class="btn btn-primary mb-3"><i class="fas fa-plus"></i> Agregar Nuevo Número</button><p></p>
     
     <div class="phone-list row">
         <?php if (empty($numeros)): ?>
