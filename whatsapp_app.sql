@@ -32,7 +32,7 @@ replied_to_uid varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NUL
 es_entrante tinyint(1) NOT NULL,
 payload json NOT NULL,
 estado_entrega_endpoint enum('PENDIENTE','PENDIENTE_SUBIDA','PROCESANDO','REINTENTANDO','EXITOSO','FALLIDO','NO_APLICA') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'PENDIENTE',
-estado_whatsapp enum('enviado','recibido','fallido') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+estado_whatsapp enum('enviado','recibido','fallido','entregado','leido') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
 conteo_reintentos int NOT NULL DEFAULT 0,
 mensaje_error text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
 fecha_proximo_intento timestamp NULL DEFAULT NULL,
