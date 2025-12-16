@@ -100,15 +100,21 @@ FOR EACH ROW
 BEGIN
     DECLARE blacklist_count INT;
 
-    -- Verificar SOLAMENTE si el REMITENTE (quien envía) está en la lista negra
-    SELECT COUNT(*) INTO blacklist_count
-    FROM lista_negra_uid
-    WHERE uid = NEW.remitente_uid;
+    -- 1. Solo nos interesa bloquear si es un mensaje ENTRANTE (es_entrante = 1)
+    -- Si es saliente (0), el trigger no hace nada y deja pasar el mensaje.
+    IF NEW.es_entrante = 1 THEN
 
-    -- Si el remitente está en la lista negra, bloqueamos
-    IF blacklist_count > 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Bloqueado: El remitente está en la lista negra';
+        -- 2. Verificamos si EL DUEÑO DE LA SESIÓN (NEW.uid) está en la lista negra
+        SELECT COUNT(*) INTO blacklist_count
+        FROM lista_negra_uid
+        WHERE uid = NEW.uid;
+
+        -- 3. Si está en la lista, bloqueamos la entrada
+        IF blacklist_count > 0 THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Bloqueado: Este numero tiene la recepcion desactivada.';
+        END IF;
+
     END IF;
 END$$
 
