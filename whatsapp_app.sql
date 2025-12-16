@@ -2,7 +2,6 @@ SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- Table structure for licencias
-
 DROP TABLE IF EXISTS licencias;
 CREATE TABLE licencias (
 id int NOT NULL AUTO_INCREMENT,
@@ -17,7 +16,6 @@ PRIMARY KEY (id) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- Table structure for mensajes
-
 DROP TABLE IF EXISTS mensajes;
 CREATE TABLE mensajes (
 id int NOT NULL AUTO_INCREMENT,
@@ -43,8 +41,19 @@ UNIQUE KEY custom_uid_unique (custom_uid),
 KEY idx_worker_process (estado_entrega_endpoint, fecha_proximo_intento)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
--- Table structure for numeros
+-- Table structure for usuarios
+DROP TABLE IF EXISTS usuarios;
+CREATE TABLE usuarios (
+id int NOT NULL AUTO_INCREMENT,
+nombre varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+email varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL UNIQUE,
+password varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+fecha_creacion timestamp NOT NULL DEFAULT current_timestamp,
+admin TINYINT(1) NOT NULL DEFAULT 0,
+PRIMARY KEY (id) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
+-- Table structure for numeros
 DROP TABLE IF EXISTS numeros;
 CREATE TABLE numeros (
 id int NOT NULL AUTO_INCREMENT,
@@ -59,22 +68,7 @@ INDEX usuario_id(usuario_id ASC) USING BTREE,
 CONSTRAINT numeros_ibfk_1 FOREIGN KEY (usuario_id) REFERENCES usuarios (id) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 27 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
--- Table structure for usuarios
-
-DROP TABLE IF EXISTS usuarios;
-CREATE TABLE usuarios (
-id int NOT NULL AUTO_INCREMENT,
-nombre varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-email varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL UNIQUE,
-password varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-fecha_creacion timestamp NOT NULL DEFAULT current_timestamp,
-admin TINYINT(1) NOT NULL DEFAULT 0,
-PRIMARY KEY (id) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
-
-SET FOREIGN_KEY_CHECKS = 1;
-
--- Table structure for usuarios
+-- Table structure for contactos
 DROP TABLE IF EXISTS contactos;
 CREATE TABLE contactos (
 id INT NOT NULL AUTO_INCREMENT,
@@ -86,3 +80,41 @@ fecha_ultima_actualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDAT
 PRIMARY KEY (id),
 UNIQUE KEY uid_unique (uid) -- Asegura que cada número exista solo una vez
 ) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Table structure for lista_negra_uid
+CREATE TABLE IF NOT EXISTS lista_negra_uid (
+  uid VARCHAR(25) NOT NULL,
+  motivo VARCHAR(255) DEFAULT NULL,
+  fecha_agregado TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (uid)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Trigger
+DELIMITER $$
+
+DROP TRIGGER IF EXISTS before_insert_mensajes$$
+
+CREATE TRIGGER before_insert_mensajes
+BEFORE INSERT ON mensajes
+FOR EACH ROW
+BEGIN
+    DECLARE blacklist_count INT;
+
+    -- Verificar SOLAMENTE si el REMITENTE (quien envía) está en la lista negra
+    SELECT COUNT(*) INTO blacklist_count
+    FROM lista_negra_uid
+    WHERE uid = NEW.remitente_uid;
+
+    -- Si el remitente está en la lista negra, bloqueamos
+    IF blacklist_count > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Bloqueado: El remitente está en la lista negra';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- Insertar UID en la lista negra
+INSERT IGNORE INTO lista_negra_uid (uid, motivo) VALUES ('584146804119', 'Recepción de mensajes desactivada.');
+
+SET FOREIGN_KEY_CHECKS = 1;
